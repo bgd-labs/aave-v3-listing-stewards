@@ -1,0 +1,12 @@
+
+.idea
+.vscode
+.env
+
+# Foundry
+out/
+cache/
+
+node_modules/
+
+scripts/maps/*Formatted.json
