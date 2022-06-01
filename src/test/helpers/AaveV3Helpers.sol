@@ -1,82 +1,91 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
+pragma solidity ^0.8.13;
 
 import 'forge-std/console.sol';
 import {Vm} from 'forge-std/Vm.sol';
 
 interface IERC20 {
-  /**
-   * @dev Returns the amount of tokens in existence.
-   */
-  function totalSupply() external view returns (uint256);
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
 
-  /**
-   * @dev Returns the amount of tokens owned by `account`.
-   */
-  function balanceOf(address account) external view returns (uint256);
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
 
-  /**
-   * @dev Moves `amount` tokens from the caller's account to `recipient`.
-   *
-   * Returns a boolean value indicating whether the operation succeeded.
-   *
-   * Emits a {Transfer} event.
-   */
-  function transfer(address recipient, uint256 amount) external returns (bool);
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `recipient`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address recipient, uint256 amount)
+        external
+        returns (bool);
 
-  /**
-   * @dev Returns the remaining number of tokens that `spender` will be
-   * allowed to spend on behalf of `owner` through {transferFrom}. This is
-   * zero by default.
-   *
-   * This value changes when {approve} or {transferFrom} are called.
-   */
-  function allowance(address owner, address spender) external view returns (uint256);
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
 
-  /**
-   * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-   *
-   * Returns a boolean value indicating whether the operation succeeded.
-   *
-   * IMPORTANT: Beware that changing an allowance with this method brings the risk
-   * that someone may use both the old and the new allowance by unfortunate
-   * transaction ordering. One possible solution to mitigate this race
-   * condition is to first reduce the spender's allowance to 0 and set the
-   * desired value afterwards:
-   * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-   *
-   * Emits an {Approval} event.
-   */
-  function approve(address spender, uint256 amount) external returns (bool);
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
 
-  /**
-   * @dev Moves `amount` tokens from `sender` to `recipient` using the
-   * allowance mechanism. `amount` is then deducted from the caller's
-   * allowance.
-   *
-   * Returns a boolean value indicating whether the operation succeeded.
-   *
-   * Emits a {Transfer} event.
-   */
-  function transferFrom(
-    address sender,
-    address recipient,
-    uint256 amount
-  ) external returns (bool);
+    /**
+     * @dev Moves `amount` tokens from `sender` to `recipient` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
 
-  /**
-   * @dev Emitted when `value` tokens are moved from one account (`from`) to
-   * another (`to`).
-   *
-   * Note that `value` may be zero.
-   */
-  event Transfer(address indexed from, address indexed to, uint256 value);
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
-  /**
-   * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-   * a call to {approve}. `value` is the new allowance.
-   */
-  event Approval(address indexed owner, address indexed spender, uint256 value);
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
 }
 
 struct TokenData {
@@ -107,6 +116,9 @@ struct ReserveConfig {
     bool stableBorrowRateEnabled;
     bool isActive;
     bool isFrozen;
+    uint256 supplyCap;
+    uint256 borrowCap;
+    uint256 debtCeiling;
 }
 
 struct ReserveConfigurationMap {
@@ -234,6 +246,29 @@ interface IProtocolDataProvider {
             address stableDebtTokenAddress,
             address variableDebtTokenAddress
         );
+
+    function getReserveCaps(address asset)
+        external
+        view
+        returns (uint256 borrowCap, uint256 supplyCap);
+
+    function getDebtCeiling(address asset) external view returns (uint256);
+
+    function getReserveEModeCategory(address asset)
+        external
+        view
+        returns (uint256);
+
+    function getSiloedBorrowing(address asset) external view returns (bool);
+
+    function getLiquidationProtocolFee(address asset)
+        external
+        view
+        returns (uint256);
+
+    function getUnbackedMintCap(address asset) external view returns (uint256);
+
+    function getDebtCeilingDecimals() external pure returns (uint256);
 }
 
 interface IAavePool {
@@ -364,6 +399,12 @@ library AaveV3Helpers {
             .interestRateStrategyAddress;
         localConfig.isActive = isActive;
         localConfig.isFrozen = isFrozen;
+        (localConfig.borrowCap, localConfig.supplyCap) = PDP.getReserveCaps(
+            reserve.tokenAddress
+        );
+        localConfig.debtCeiling =
+            PDP.getDebtCeiling(reserve.tokenAddress) /
+            (10**PDP.getDebtCeilingDecimals());
 
         return localConfig;
     }
@@ -426,6 +467,9 @@ library AaveV3Helpers {
             'Stable borrow rate enabled ',
             (config.stableBorrowRateEnabled) ? 'Yes' : 'No'
         );
+        console.log('Supply cap ', config.supplyCap);
+        console.log('Borrow cap ', config.borrowCap);
+        console.log('Debt ceiling ', config.debtCeiling);
         console.log('Interest rate strategy ', config.interestRateStrategy);
         console.log('Is active ', (config.isActive) ? 'Yes' : 'No');
         console.log('Is frozen ', (config.isFrozen) ? 'Yes' : 'No');
@@ -444,50 +488,62 @@ library AaveV3Helpers {
         );
         require(
             config.underlying == expectedConfig.underlying,
-            '_validateEnsConfigsInAave() : INVALID_UNDERLYING'
+            '_validateConfigsInAave() : INVALID_UNDERLYING'
         );
         require(
             config.decimals == expectedConfig.decimals,
-            '_validateEnsConfigsInAave: INVALID_DECIMALS'
+            '_validateConfigsInAave: INVALID_DECIMALS'
         );
         require(
             config.ltv == expectedConfig.ltv,
-            '_validateEnsConfigsInAave: INVALID_LTV'
+            '_validateConfigsInAave: INVALID_LTV'
         );
         require(
             config.liquidationThreshold == expectedConfig.liquidationThreshold,
-            '_validateEnsConfigsInAave: INVALID_LIQ_THRESHOLD'
+            '_validateConfigsInAave: INVALID_LIQ_THRESHOLD'
         );
         require(
             config.liquidationBonus == expectedConfig.liquidationBonus,
-            '_validateEnsConfigsInAave: INVALID_LIQ_BONUS'
+            '_validateConfigsInAave: INVALID_LIQ_BONUS'
         );
         require(
             config.reserveFactor == expectedConfig.reserveFactor,
-            '_validateEnsConfigsInAave: INVALID_RESERVE_FACTOR'
+            '_validateConfigsInAave: INVALID_RESERVE_FACTOR'
         );
 
         require(
             config.usageAsCollateralEnabled ==
                 expectedConfig.usageAsCollateralEnabled,
-            '_validateEnsConfigsInAave: INVALID_USAGE_AS_COLLATERAL'
+            '_validateConfigsInAave: INVALID_USAGE_AS_COLLATERAL'
         );
         require(
             config.borrowingEnabled == expectedConfig.borrowingEnabled,
-            '_validateEnsConfigsInAave: INVALID_BORROWING_ENABLED'
+            '_validateConfigsInAave: INVALID_BORROWING_ENABLED'
         );
         require(
             config.stableBorrowRateEnabled ==
                 expectedConfig.stableBorrowRateEnabled,
-            '_validateEnsConfigsInAave: INVALID_STABLE_BORROW_ENABLED'
+            '_validateConfigsInAave: INVALID_STABLE_BORROW_ENABLED'
         );
         require(
             config.isActive == expectedConfig.isActive,
-            '_validateEnsConfigsInAave: INVALID_IS_ACTIVE'
+            '_validateConfigsInAave: INVALID_IS_ACTIVE'
         );
         require(
             config.isFrozen == expectedConfig.isFrozen,
-            '_validateEnsConfigsInAave: INVALID_IS_FROZEN'
+            '_validateConfigsInAave: INVALID_IS_FROZEN'
+        );
+        require(
+            config.supplyCap == expectedConfig.supplyCap,
+            '_validateConfigsInAave: INVALID_SUPPLY_CAP'
+        );
+        require(
+            config.borrowCap == expectedConfig.borrowCap,
+            '_validateConfigsInAave: INVALID_BORROW_CAP'
+        );
+        require(
+            config.debtCeiling == expectedConfig.debtCeiling,
+            '_validateConfigsInAave: INVALID_DEBT_CEILING'
         );
     }
 
