@@ -7,6 +7,7 @@ import {IPoolConfigurator, ConfiguratorInputTypes} from '../contracts/interfaces
 import {IACLManager} from '../contracts/interfaces/IACLManager.sol';
 import {AaveV3SAVAXListingSteward} from '../contracts/AaveV3SAVAXListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
+import {sAVAXOracleAdapter} from '../contracts/sAVAXOracleAdapter.sol';
 
 contract V3ListingByGuardian is Test {
     using stdStorage for StdStorage;
@@ -35,7 +36,11 @@ contract V3ListingByGuardian is Test {
 
         vm.startPrank(GUARDIAN_AVALANCHE);
 
-        AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward();
+        sAVAXOracleAdapter oracleAdapter = new sAVAXOracleAdapter();
+
+        AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward(
+                address(oracleAdapter)
+            );
 
         IACLManager aclManager = listingSteward.ACL_MANAGER();
 
@@ -93,7 +98,7 @@ contract V3ListingByGuardian is Test {
 
         AaveV3Helpers._validateAssetSourceOnOracle(
             SAVAX,
-            listingSteward.PRICE_FEED_SAVAX()
+            listingSteward.SAVAX_PRICE_FEED()
         );
 
         _validatePoolActionsPostListing(allConfigsAfter);
