@@ -31,7 +31,7 @@ contract AaveV3SAVAXListingSteward is Ownable {
     uint16 public constant NEW_EMODE_LIQ_THRESHOLD = 9700; // 97% TODO review
     uint16 public constant NEW_EMODE_LIQ_BONUS = 10250; // 2.5% TODO review
     address public constant NEW_EMODE_ORACLE = address(0); // No custom oracle
-    string public constant NEW_EMODE_LABEL = 'AVAX-like'; // TODO review
+    string public constant NEW_EMODE_LABEL = 'AVAX correlated';
 
     // **************************
     // New asset being listed (SAVAX)
