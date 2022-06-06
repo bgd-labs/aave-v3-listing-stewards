@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import {ICLAggregator} from './interfaces/ICLAggregator.sol';
-import {IsAVAXWithRate} from './interfaces/IsAVAXWithRate.sol';
+import {ICLAggregator} from '../interfaces/ICLAggregator.sol';
+import {IsAVAXWithRate} from '../interfaces/IsAVAXWithRate.sol';
 
 contract sAVAXOracleAdapter is ICLAggregator {
     IsAVAXWithRate public constant SAVAX =

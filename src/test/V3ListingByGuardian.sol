@@ -5,9 +5,9 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes} from '../contracts/interfaces/IPoolConfigurator.sol';
 import {IACLManager} from '../contracts/interfaces/IACLManager.sol';
-import {AaveV3SAVAXListingSteward} from '../contracts/AaveV3SAVAXListingSteward.sol';
+import {AaveV3SAVAXListingSteward} from '../contracts/savax/AaveV3SAVAXListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
-import {sAVAXOracleAdapter} from '../contracts/sAVAXOracleAdapter.sol';
+import {sAVAXOracleAdapter} from '../contracts/savax/sAVAXOracleAdapter.sol';
 
 contract V3ListingByGuardian is Test {
     using stdStorage for StdStorage;

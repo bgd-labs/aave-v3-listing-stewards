@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import {IPoolConfigurator, ConfiguratorInputTypes} from './interfaces/IPoolConfigurator.sol';
-import {IACLManager} from './interfaces/IACLManager.sol';
-import {IAaveOracle} from './interfaces/IAaveOracle.sol';
-import {Ownable} from './dependencies/Ownable.sol';
+import {IPoolConfigurator, ConfiguratorInputTypes} from '../interfaces/IPoolConfigurator.sol';
+import {IACLManager} from '../interfaces/IACLManager.sol';
+import {IAaveOracle} from '../interfaces/IAaveOracle.sol';
+import {Ownable} from '../dependencies/Ownable.sol';
 import {sAVAXOracleAdapter} from './sAVAXOracleAdapter.sol';
 
 contract AaveV3SAVAXListingSteward is Ownable {
