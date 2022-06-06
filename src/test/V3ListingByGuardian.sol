@@ -30,7 +30,7 @@ contract V3ListingByGuardian is Test {
 
     function setUp() public {}
 
-    function testAddSingleDistribution() public {
+    function testListing() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
             ._getReservesConfigs(false);
 
