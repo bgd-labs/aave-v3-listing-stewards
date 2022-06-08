@@ -5,7 +5,7 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes} from '../contracts/interfaces/IPoolConfigurator.sol';
 import {IACLManager} from '../contracts/interfaces/IACLManager.sol';
-import {AaveV3SAVAXListingSteward} from '../contracts/AaveV3SAVAXListingSteward.sol';
+import {AaveV3FRAXListingSteward} from '../contracts/AaveV3SFRAXListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
 contract V3ListingByGuardian is Test {
@@ -17,10 +17,10 @@ contract V3ListingByGuardian is Test {
     address public constant CURRENT_ACL_SUPERADMIN =
         0x4365F8e70CF38C6cA67DE41448508F2da8825500;
 
-    address public constant SAVAX = 0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE;
+    address public constant FRAX = 0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64;
 
-    address public constant SAVAX_WHALE =
-        0xf973C06c8964C1650e210c940db65Acbf7F2a48D;
+    address public constant FRAX_WHALE =
+        0x6FD4b4c38ED80727EcD0d58505565F9e422c965f;
 
     address public constant DAIe = 0xd586E7F844cEa2F87f50152665BCbc2C279D8d70;
 
@@ -35,7 +35,7 @@ contract V3ListingByGuardian is Test {
 
         vm.startPrank(GUARDIAN_AVALANCHE);
 
-        AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward();
+        AaveV3FRAXListingSteward listingSteward = new AaveV3FRAXListingSteward();
 
         IACLManager aclManager = listingSteward.ACL_MANAGER();
 
@@ -50,16 +50,16 @@ contract V3ListingByGuardian is Test {
             ._getReservesConfigs(false);
 
         ReserveConfig memory expectedAssetConfig = ReserveConfig({
-            symbol: 'sAVAX',
-            underlying: 0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE,
+            symbol: 'FRAX',
+            underlying: 0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64,
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
-            decimals: 18,
-            ltv: 5000,
-            liquidationThreshold: 6500,
+            decimals: 6,
+            ltv: 7500,
+            liquidationThreshold: 8000,
             liquidationBonus: 11000,
-            reserveFactor: 1000,
+            reserveFactor: 500,
             usageAsCollateralEnabled: true,
             borrowingEnabled: false,
             interestRateStrategy: address(0),
@@ -83,7 +83,7 @@ contract V3ListingByGuardian is Test {
 
         AaveV3Helpers._validateReserveTokensImpls(
             vm,
-            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'sAVAX', false),
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'FRAX', false),
             ReserveTokens({
                 aToken: listingSteward.ATOKEN_IMPL(),
                 stableDebtToken: listingSteward.SDTOKEN_IMPL(),
@@ -92,34 +92,42 @@ contract V3ListingByGuardian is Test {
         );
 
         AaveV3Helpers._validateAssetSourceOnOracle(
-            SAVAX,
-            listingSteward.PRICE_FEED_SAVAX()
+            FRAX,
+            listingSteward.PRICE_FEED_FRAX()
         );
 
+        console.log(
+            AaveV3Helpers
+                ._findReserveConfig(allConfigsAfter, 'FRAX', false)
+                .aToken
+        );
         _validatePoolActionsPostListing(allConfigsAfter);
     }
 
     function _validatePoolActionsPostListing(
         ReserveConfig[] memory allReservesConfigs
     ) internal {
+        
         AaveV3Helpers._deposit(
             vm,
-            SAVAX_WHALE,
-            SAVAX_WHALE,
-            SAVAX,
-            666 ether,
+            FRAX_WHALE,
+            FRAX_WHALE,
+            FRAX,
+            666,
             true,
             AaveV3Helpers
-                ._findReserveConfig(allReservesConfigs, 'sAVAX', false)
+                ._findReserveConfig(allReservesConfigs, 'FRAX', false)
                 .aToken
         );
 
+
+
         AaveV3Helpers._borrow(
             vm,
-            SAVAX_WHALE,
-            SAVAX_WHALE,
+            FRAX_WHALE,
+            FRAX_WHALE,
             DAIe,
-            222 ether,
+            222,
             2,
             AaveV3Helpers
                 ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
@@ -131,13 +139,13 @@ contract V3ListingByGuardian is Test {
         try
             AaveV3Helpers._borrow(
                 vm,
-                SAVAX_WHALE,
-                SAVAX_WHALE,
-                SAVAX,
+                FRAX_WHALE,
+                FRAX_WHALE,
+                FRAX,
                 5 ether,
                 2,
                 AaveV3Helpers
-                    ._findReserveConfig(allReservesConfigs, 'sAVAX', false)
+                    ._findReserveConfig(allReservesConfigs, 'FRAX', false)
                     .stableDebtToken
             )
         {
@@ -151,7 +159,7 @@ contract V3ListingByGuardian is Test {
         }
 
         vm.startPrank(DAI_WHALE);
-        IERC20(DAIe).transfer(SAVAX_WHALE, 300 ether);
+        IERC20(DAIe).transfer(FRAX_WHALE, 300 ether);
         vm.stopPrank();
 
         // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
@@ -159,10 +167,10 @@ contract V3ListingByGuardian is Test {
 
         AaveV3Helpers._repay(
             vm,
-            SAVAX_WHALE,
-            SAVAX_WHALE,
+            FRAX_WHALE,
+            FRAX_WHALE,
             DAIe,
-            IERC20(DAIe).balanceOf(SAVAX_WHALE),
+            IERC20(DAIe).balanceOf(FRAX_WHALE),
             2,
             AaveV3Helpers
                 ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
@@ -172,12 +180,12 @@ contract V3ListingByGuardian is Test {
 
         AaveV3Helpers._withdraw(
             vm,
-            SAVAX_WHALE,
-            SAVAX_WHALE,
-            SAVAX,
+            FRAX_WHALE,
+            FRAX_WHALE,
+            FRAX,
             type(uint256).max,
             AaveV3Helpers
-                ._findReserveConfig(allReservesConfigs, 'sAVAX', false)
+                ._findReserveConfig(allReservesConfigs, 'FRAX', false)
                 .aToken
         );
     }
