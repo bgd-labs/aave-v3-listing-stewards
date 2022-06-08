@@ -9,7 +9,7 @@ import {AaveV3SAVAXListingSteward} from '../contracts/savax/AaveV3SAVAXListingSt
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 import {sAVAXOracleAdapter} from '../contracts/savax/sAVAXOracleAdapter.sol';
 
-contract V3ListingByGuardian is Test {
+contract sAVAXAaveV3AvaListingByGuardian is Test {
     using stdStorage for StdStorage;
 
     address public constant GUARDIAN_AVALANCHE =
