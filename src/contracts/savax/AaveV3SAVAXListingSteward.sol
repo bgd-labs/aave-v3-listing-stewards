@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import {IPoolConfigurator, ConfiguratorInputTypes} from './interfaces/IPoolConfigurator.sol';
-import {IACLManager} from './interfaces/IACLManager.sol';
-import {IAaveOracle} from './interfaces/IAaveOracle.sol';
-import {Ownable} from './dependencies/Ownable.sol';
+import {IPoolConfigurator, ConfiguratorInputTypes} from '../interfaces/IPoolConfigurator.sol';
+import {IACLManager} from '../interfaces/IACLManager.sol';
+import {IAaveOracle} from '../interfaces/IAaveOracle.sol';
+import {Ownable} from '../dependencies/Ownable.sol';
+import {sAVAXOracleAdapter} from './sAVAXOracleAdapter.sol';
 
 contract AaveV3SAVAXListingSteward is Ownable {
     // **************************
@@ -45,8 +46,6 @@ contract AaveV3SAVAXListingSteward is Ownable {
     string public constant VDSAVAX_SYMBOL = 'variableDebtAvasAVAX';
     string public constant SDSAVAX_NAME = 'Aave Avalanche Stable Debt sAVAX';
     string public constant SDSAVAX_SYMBOL = 'stableDebtAvasAVAX';
-    address public constant PRICE_FEED_SAVAX =
-        0x2854Ca10a54800e15A2a25cFa52567166434Ff0a;
     address public constant ATOKEN_IMPL =
         0xa5ba6E5EC19a1Bf23C857991c857dB62b2Aa187B;
     address public constant VDTOKEN_IMPL =
@@ -55,6 +54,7 @@ contract AaveV3SAVAXListingSteward is Ownable {
         0x52A1CeB68Ee6b7B5D13E0376A1E0E4423A8cE26e;
     address public constant RATE_STRATEGY =
         0x79a906e8c998d2fb5C5D66d23c4c5416Fe0168D6;
+    address public immutable SAVAX_PRICE_FEED;
     uint256 public constant LTV = 5000; // 50%
     uint256 public constant LIQ_THRESHOLD = 6500; // 65%
     uint256 public constant LIQ_BONUS = 11000; // 10%
@@ -62,15 +62,21 @@ contract AaveV3SAVAXListingSteward is Ownable {
     uint256 public constant RESERVE_FACTOR = 1000; // 10%
     uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
 
+    constructor(address sAVAXPriceFeed) {
+        SAVAX_PRICE_FEED = sAVAXPriceFeed;
+    }
+
     function listAssetAddingOracle() external onlyOwner {
         // ----------------------------
         // 1. New price feed on oracle
         // ----------------------------
 
+        require(SAVAX_PRICE_FEED != address(0), 'INVALID_PRICE_FEED');
+
         address[] memory assets = new address[](1);
         assets[0] = SAVAX;
         address[] memory sources = new address[](1);
-        sources[0] = PRICE_FEED_SAVAX;
+        sources[0] = SAVAX_PRICE_FEED;
 
         ORACLE.setAssetSources(assets, sources);
 
