@@ -68,7 +68,7 @@ contract V3ListingByGuardian is Test {
             isFrozen: false,
             supplyCap: 500_000,
             borrowCap: 0,
-            debtCeiling: 0
+            debtCeiling: 50000
         });
 
         AaveV3Helpers._validateReserveConfig(
