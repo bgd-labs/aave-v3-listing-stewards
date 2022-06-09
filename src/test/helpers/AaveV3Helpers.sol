@@ -403,8 +403,7 @@ library AaveV3Helpers {
             reserve.tokenAddress
         );
         localConfig.debtCeiling =
-            PDP.getDebtCeiling(reserve.tokenAddress) /
-            (10**PDP.getDebtCeilingDecimals());
+            PDP.getDebtCeiling(reserve.tokenAddress);
 
         return localConfig;
     }

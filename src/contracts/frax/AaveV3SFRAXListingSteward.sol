@@ -96,7 +96,7 @@ contract AaveV3FRAXListingSteward is Ownable {
 
         CONFIGURATOR.setSupplyCap(FRAX, SUPPLY_CAP);
 
-        CONFIGURATOR.setDebtCeiling(FRAX, 5_000_000);
+        CONFIGURATOR.setDebtCeiling(FRAX, 50_000_000);
 
         CONFIGURATOR.configureReserveAsCollateral(
             FRAX,
