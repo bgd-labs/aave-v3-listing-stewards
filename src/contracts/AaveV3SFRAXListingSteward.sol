@@ -45,7 +45,7 @@ contract AaveV3FRAXListingSteward is Ownable {
     address public constant SDTOKEN_IMPL =
         0x52A1CeB68Ee6b7B5D13E0376A1E0E4423A8cE26e;
     address public constant RATE_STRATEGY =
-        0xf4a0039f2d4a2ead5216abb6ae4c4c3aa2db9b82;
+        0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
     uint256 public constant LTV = 7500; // 75%
     uint256 public constant LIQ_THRESHOLD = 8000; // 800%
     uint256 public constant RESERVE_FACTOR = 500; // 5%
