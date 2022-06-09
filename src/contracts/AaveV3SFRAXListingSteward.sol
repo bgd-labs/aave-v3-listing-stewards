@@ -28,10 +28,10 @@ contract AaveV3FRAXListingSteward is Ownable {
 
     address public constant FRAX = 0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64;
     uint8 public constant FRAX_DECIMALS = 6;
-    string public constant FRAX_NAME = 'AAVE Avalanche FRAX';
+    string public constant FRAX_NAME = 'Aave Avalanche FRAX';
     string public constant AFRAX_SYMBOL = 'aAvaFrax';
-    string public constant VDFRAX_NAME = 'Aaave Avalanche Variable Debt FRAX';
-    string public constant VDFRAX_SYMBOL = 'vraibleDebtAvaFrax';
+    string public constant VDFRAX_NAME = 'Aave Avalanche Variable Debt FRAX';
+    string public constant VDFRAX_SYMBOL = 'vraibleDebtAaveFRAX';
     string public constant SDFRAX_NAME = 'Aave Avalanche Stable Debt FRAX';
     string public constant SDFRAX_SYMBOL = 'stableDebtAvaFRAX';
 
@@ -45,7 +45,7 @@ contract AaveV3FRAXListingSteward is Ownable {
     address public constant SDTOKEN_IMPL =
         0x52A1CeB68Ee6b7B5D13E0376A1E0E4423A8cE26e;
     address public constant RATE_STRATEGY =
-        0x79a906e8c998d2fb5C5D66d23c4c5416Fe0168D6;
+        0xf4a0039f2d4a2ead5216abb6ae4c4c3aa2db9b82;
     uint256 public constant LTV = 7500; // 75%
     uint256 public constant LIQ_THRESHOLD = 8000; // 800%
     uint256 public constant RESERVE_FACTOR = 500; // 5%
@@ -95,6 +95,7 @@ contract AaveV3FRAXListingSteward is Ownable {
         CONFIGURATOR.initReserves(initReserveInputs);
 
         CONFIGURATOR.setSupplyCap(FRAX, SUPPLY_CAP);
+        // CONFIGURATOR.setDebtCeiling(FRAX, newDebtCeiling);
 
         CONFIGURATOR.configureReserveAsCollateral(
             FRAX,

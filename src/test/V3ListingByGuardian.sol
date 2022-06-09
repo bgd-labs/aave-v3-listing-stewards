@@ -31,7 +31,7 @@ contract V3ListingByGuardian is Test {
 
     function testAddSingleDistribution() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
-            ._getReservesConfigs(false);
+            ._getReservesConfigs(true);
 
         vm.startPrank(GUARDIAN_AVALANCHE);
 
