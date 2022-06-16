@@ -21,7 +21,7 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
     address public constant SAVAX = 0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE;
 
     address public constant SAVAX_WHALE =
-        0xf973C06c8964C1650e210c940db65Acbf7F2a48D;
+        0x8B3D19047c35AF317A4393483a356762bEeC69A5;
 
     address public constant DAIe = 0xd586E7F844cEa2F87f50152665BCbc2C279D8d70;
 
