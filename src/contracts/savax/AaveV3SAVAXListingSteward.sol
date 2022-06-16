@@ -7,6 +7,16 @@ import {IAaveOracle} from '../interfaces/IAaveOracle.sol';
 import {Ownable} from '../dependencies/Ownable.sol';
 import {sAVAXOracleAdapter} from './sAVAXOracleAdapter.sol';
 
+
+/**
+* @dev One-time-use helper contract to be used by Aave Guardians (Gnosis Safe generally) to list new assets:
+* - Guardian should be the `owner`, for extra security, even if theoretically `listAssetAddingOracle` could be open.
+* - It pre-requires to have risk admin and asset listings role.
+* - It lists a new price feed on the AaveOracle.
+* - Adds a new e-mode.
+* - Lists the asset using the PoolConfigurator.
+* - Renounces to risk admin and asset listing roles.
+*/
 contract AaveV3SAVAXListingSteward is Ownable {
     // **************************
     // Protocol's contracts
@@ -28,9 +38,9 @@ contract AaveV3SAVAXListingSteward is Ownable {
     // **************************
 
     uint8 public constant NEW_EMODE_ID = 2;
-    uint16 public constant NEW_EMODE_LTV = 9500; // 95% TODO review
-    uint16 public constant NEW_EMODE_LIQ_THRESHOLD = 9700; // 97% TODO review
-    uint16 public constant NEW_EMODE_LIQ_BONUS = 10250; // 2.5% TODO review
+    uint16 public constant NEW_EMODE_LTV = 9250; // 92.5%
+    uint16 public constant NEW_EMODE_LIQ_THRESHOLD = 9500; // 95%
+    uint16 public constant NEW_EMODE_LIQ_BONUS = 10100; // 1%
     address public constant NEW_EMODE_ORACLE = address(0); // No custom oracle
     string public constant NEW_EMODE_LABEL = 'AVAX correlated';
 
@@ -116,7 +126,7 @@ contract AaveV3SAVAXListingSteward is Ownable {
             variableDebtTokenSymbol: VDSAVAX_SYMBOL,
             stableDebtTokenName: SDSAVAX_NAME,
             stableDebtTokenSymbol: SDSAVAX_SYMBOL,
-            params: bytes('') // TODO
+            params: bytes('')
         });
 
         CONFIGURATOR.initReserves(initReserveInputs);
