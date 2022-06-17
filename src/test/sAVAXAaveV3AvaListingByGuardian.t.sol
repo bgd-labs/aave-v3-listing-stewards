@@ -40,7 +40,9 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
 
         AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward();
 
-        IACLManager aclManager = listingSteward.ACL_MANAGER();
+        IACLManager aclManager = IACLManager(
+            listingSteward.ADDRESSES_PROVIDER().getACLManager()
+        );
 
         aclManager.addAssetListingAdmin(address(listingSteward));
         aclManager.addRiskAdmin(address(listingSteward));
@@ -97,6 +99,11 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
         AaveV3Helpers._validateAssetSourceOnOracle(SAVAX, SAVAX_PRICE_FEED);
 
         _validatePoolActionsPostListing(allConfigsAfter);
+
+        require(
+            listingSteward.owner() == address(0),
+            'INVALID_OWNER_POST_LISTING'
+        );
     }
 
     function _validatePoolActionsPostListing(
