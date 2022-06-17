@@ -9,7 +9,7 @@ update:; forge update
 build  :; forge build
 
 # IMPORTANT It is highly probable that will be necessary to modify the --fork-block-number, depending on the test
-test   :; forge test -vvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16107640
-trace   :; forge test -vvvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16107640
+test   :; forge test -vvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16146270
+trace   :; forge test -vvvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16146270
 clean  :; forge clean
 snapshot :; forge snapshot

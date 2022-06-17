@@ -7,16 +7,15 @@ import {IAaveOracle} from '../interfaces/IAaveOracle.sol';
 import {Ownable} from '../dependencies/Ownable.sol';
 import {sAVAXOracleAdapter} from './sAVAXOracleAdapter.sol';
 
-
 /**
-* @dev One-time-use helper contract to be used by Aave Guardians (Gnosis Safe generally) to list new assets:
-* - Guardian should be the `owner`, for extra security, even if theoretically `listAssetAddingOracle` could be open.
-* - It pre-requires to have risk admin and asset listings role.
-* - It lists a new price feed on the AaveOracle.
-* - Adds a new e-mode.
-* - Lists the asset using the PoolConfigurator.
-* - Renounces to risk admin and asset listing roles.
-*/
+ * @dev One-time-use helper contract to be used by Aave Guardians (Gnosis Safe generally) to list new assets:
+ * - Guardian should be the `owner`, for extra security, even if theoretically `listAssetAddingOracle` could be open.
+ * - It pre-requires to have risk admin and asset listings role.
+ * - It lists a new price feed on the AaveOracle.
+ * - Adds a new e-mode.
+ * - Lists the asset using the PoolConfigurator.
+ * - Renounces to risk admin and asset listing roles.
+ */
 contract AaveV3SAVAXListingSteward is Ownable {
     // **************************
     // Protocol's contracts
@@ -64,17 +63,14 @@ contract AaveV3SAVAXListingSteward is Ownable {
         0x52A1CeB68Ee6b7B5D13E0376A1E0E4423A8cE26e;
     address public constant RATE_STRATEGY =
         0x79a906e8c998d2fb5C5D66d23c4c5416Fe0168D6;
-    address public immutable SAVAX_PRICE_FEED;
-    uint256 public constant LTV = 5000; // 50%
-    uint256 public constant LIQ_THRESHOLD = 6500; // 65%
+    address public constant SAVAX_PRICE_FEED =
+        0xc9245871D69BF4c36c6F2D15E0D68Ffa883FE1A7;
+    uint256 public constant LTV = 2000; // 20%
+    uint256 public constant LIQ_THRESHOLD = 3000; // 30%
     uint256 public constant LIQ_BONUS = 11000; // 10%
-    uint256 public constant SUPPLY_CAP = 500_000; // ~$12.5 at price of 01/06/2022
+    uint256 public constant SUPPLY_CAP = 500_000; // ~$8.8m at price of 17/06/2022
     uint256 public constant RESERVE_FACTOR = 1000; // 10%
     uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
-
-    constructor(address sAVAXPriceFeed) {
-        SAVAX_PRICE_FEED = sAVAXPriceFeed;
-    }
 
     function listAssetAddingOracle() external onlyOwner {
         // ----------------------------

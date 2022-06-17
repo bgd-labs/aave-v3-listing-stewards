@@ -7,7 +7,6 @@ import {IPoolConfigurator, ConfiguratorInputTypes} from '../contracts/interfaces
 import {IACLManager} from '../contracts/interfaces/IACLManager.sol';
 import {AaveV3SAVAXListingSteward} from '../contracts/savax/AaveV3SAVAXListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
-import {sAVAXOracleAdapter} from '../contracts/savax/sAVAXOracleAdapter.sol';
 
 contract sAVAXAaveV3AvaListingByGuardian is Test {
     using stdStorage for StdStorage;
@@ -28,6 +27,9 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
     address public constant DAI_WHALE =
         0xED2a7edd7413021d440b09D654f3b87712abAB66;
 
+    address public constant SAVAX_PRICE_FEED =
+        0xc9245871D69BF4c36c6F2D15E0D68Ffa883FE1A7;
+
     function setUp() public {}
 
     function testListing() public {
@@ -36,11 +38,7 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
 
         vm.startPrank(GUARDIAN_AVALANCHE);
 
-        sAVAXOracleAdapter oracleAdapter = new sAVAXOracleAdapter();
-
-        AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward(
-                address(oracleAdapter)
-            );
+        AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward();
 
         IACLManager aclManager = listingSteward.ACL_MANAGER();
 
@@ -61,8 +59,8 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             decimals: 18,
-            ltv: 5000,
-            liquidationThreshold: 6500,
+            ltv: 2000,
+            liquidationThreshold: 3000,
             liquidationBonus: 11000,
             reserveFactor: 1000,
             usageAsCollateralEnabled: true,
@@ -96,10 +94,7 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
             })
         );
 
-        AaveV3Helpers._validateAssetSourceOnOracle(
-            SAVAX,
-            listingSteward.SAVAX_PRICE_FEED()
-        );
+        AaveV3Helpers._validateAssetSourceOnOracle(SAVAX, SAVAX_PRICE_FEED);
 
         _validatePoolActionsPostListing(allConfigsAfter);
     }
