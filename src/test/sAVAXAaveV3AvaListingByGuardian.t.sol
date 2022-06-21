@@ -3,11 +3,10 @@ pragma solidity ^0.8.13;
 
 import 'forge-std/Test.sol';
 
-import {IPoolConfigurator, ConfiguratorInputTypes} from '../contracts/interfaces/IPoolConfigurator.sol';
-import {IACLManager} from '../contracts/interfaces/IACLManager.sol';
+import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
+import {IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3SAVAXListingSteward} from '../contracts/savax/AaveV3SAVAXListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
-import {sAVAXOracleAdapter} from '../contracts/savax/sAVAXOracleAdapter.sol';
 
 contract sAVAXAaveV3AvaListingByGuardian is Test {
     using stdStorage for StdStorage;
@@ -21,12 +20,15 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
     address public constant SAVAX = 0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE;
 
     address public constant SAVAX_WHALE =
-        0xf973C06c8964C1650e210c940db65Acbf7F2a48D;
+        0x8B3D19047c35AF317A4393483a356762bEeC69A5;
 
     address public constant DAIe = 0xd586E7F844cEa2F87f50152665BCbc2C279D8d70;
 
     address public constant DAI_WHALE =
         0xED2a7edd7413021d440b09D654f3b87712abAB66;
+
+    address public constant SAVAX_PRICE_FEED =
+        0xc9245871D69BF4c36c6F2D15E0D68Ffa883FE1A7;
 
     function setUp() public {}
 
@@ -36,13 +38,9 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
 
         vm.startPrank(GUARDIAN_AVALANCHE);
 
-        sAVAXOracleAdapter oracleAdapter = new sAVAXOracleAdapter();
+        AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward();
 
-        AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward(
-                address(oracleAdapter)
-            );
-
-        IACLManager aclManager = listingSteward.ACL_MANAGER();
+        IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 
         aclManager.addAssetListingAdmin(address(listingSteward));
         aclManager.addRiskAdmin(address(listingSteward));
@@ -61,8 +59,8 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             decimals: 18,
-            ltv: 5000,
-            liquidationThreshold: 6500,
+            ltv: 2000,
+            liquidationThreshold: 3000,
             liquidationBonus: 11000,
             reserveFactor: 1000,
             usageAsCollateralEnabled: true,
@@ -96,12 +94,14 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
             })
         );
 
-        AaveV3Helpers._validateAssetSourceOnOracle(
-            SAVAX,
-            listingSteward.SAVAX_PRICE_FEED()
-        );
+        AaveV3Helpers._validateAssetSourceOnOracle(SAVAX, SAVAX_PRICE_FEED);
 
         _validatePoolActionsPostListing(allConfigsAfter);
+
+        require(
+            listingSteward.owner() == address(0),
+            'INVALID_OWNER_POST_LISTING'
+        );
     }
 
     function _validatePoolActionsPostListing(

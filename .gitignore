@@ -10,3 +10,4 @@ cache/
 node_modules/
 
 scripts/maps/*Formatted.json
+.DS_Store
