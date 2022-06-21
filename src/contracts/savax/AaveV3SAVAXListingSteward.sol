@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.10;
 
-import {IPoolConfigurator, ConfiguratorInputTypes} from '../interfaces/IPoolConfigurator.sol';
-import {IACLManager} from '../interfaces/IACLManager.sol';
-import {IAaveOracle} from '../interfaces/IAaveOracle.sol';
-import {IPoolAddressesProvider} from '../interfaces/IPoolAddressesProvider.sol';
+import {IPoolConfigurator ,ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
+import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
 import {Ownable} from '../dependencies/Ownable.sol';
 
 /**
@@ -20,9 +18,6 @@ contract AaveV3SAVAXListingSteward is Ownable {
     // **************************
     // Protocol's contracts
     // **************************
-
-    IPoolAddressesProvider public constant ADDRESSES_PROVIDER =
-        IPoolAddressesProvider(0xa97684ead0e402dC232d5A977953DF7ECBaB3CDb);
 
     address public constant AAVE_AVALANCHE_TREASURY =
         0x5ba7fd868c40c16f7aDfAe6CF87121E13FC2F7a0;
@@ -81,7 +76,7 @@ contract AaveV3SAVAXListingSteward is Ownable {
         address[] memory sources = new address[](1);
         sources[0] = SAVAX_PRICE_FEED;
 
-        IAaveOracle(ADDRESSES_PROVIDER.getPriceOracle()).setAssetSources(
+        AaveV3Avalanche.ORACLE.setAssetSources(
             assets,
             sources
         );
@@ -90,9 +85,7 @@ contract AaveV3SAVAXListingSteward is Ownable {
         // 2. Creation of new eMode on the Aave Pool
         // -----------------------------------------
 
-        IPoolConfigurator configurator = IPoolConfigurator(
-            ADDRESSES_PROVIDER.getPoolConfigurator()
-        );
+        IPoolConfigurator configurator = AaveV3Avalanche.POOL_CONFIGURATOR;
 
         configurator.setEModeCategory(
             NEW_EMODE_ID,
@@ -149,9 +142,7 @@ contract AaveV3SAVAXListingSteward is Ownable {
         // ---------------------------------------------------------------
         // 4. This contract renounces to both listing and risk admin roles
         // ---------------------------------------------------------------
-        IACLManager aclManager = IACLManager(
-            ADDRESSES_PROVIDER.getACLManager()
-        );
+        IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 
         aclManager.renounceRole(
             aclManager.ASSET_LISTING_ADMIN_ROLE(),
