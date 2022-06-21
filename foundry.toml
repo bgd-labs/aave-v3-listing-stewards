@@ -2,4 +2,5 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
+solc = "0.8.14"
 remappings = ["aave-address-book/=lib/aave-address-book/src/"]

@@ -109,6 +109,7 @@ struct ReserveConfig {
     uint256 ltv;
     uint256 liquidationThreshold;
     uint256 liquidationBonus;
+    uint256 liquidationProtocolFee;
     uint256 reserveFactor;
     bool usageAsCollateralEnabled;
     bool borrowingEnabled;
@@ -116,9 +117,11 @@ struct ReserveConfig {
     bool stableBorrowRateEnabled;
     bool isActive;
     bool isFrozen;
+    bool isSiloed;
     uint256 supplyCap;
     uint256 borrowCap;
     uint256 debtCeiling;
+    uint256 eModeCategory;
 }
 
 struct ReserveConfigurationMap {
@@ -399,12 +402,17 @@ library AaveV3Helpers {
             .interestRateStrategyAddress;
         localConfig.isActive = isActive;
         localConfig.isFrozen = isFrozen;
+        localConfig.isSiloed = PDP.getSiloedBorrowing(reserve.tokenAddress);
         (localConfig.borrowCap, localConfig.supplyCap) = PDP.getReserveCaps(
             reserve.tokenAddress
         );
-        localConfig.debtCeiling =
-            PDP.getDebtCeiling(reserve.tokenAddress) /
-            (10**PDP.getDebtCeilingDecimals());
+        localConfig.debtCeiling = PDP.getDebtCeiling(reserve.tokenAddress);
+        localConfig.eModeCategory = PDP.getReserveEModeCategory(
+            reserve.tokenAddress
+        );
+        localConfig.liquidationProtocolFee = PDP.getLiquidationProtocolFee(
+            reserve.tokenAddress
+        );
 
         return localConfig;
     }
@@ -453,7 +461,8 @@ library AaveV3Helpers {
         console.log('Decimals ', config.decimals);
         console.log('LTV ', config.ltv);
         console.log('Liquidation Threshold ', config.liquidationThreshold);
-        console.log('Liquidation Bonnus', config.liquidationBonus);
+        console.log('Liquidation Bonus ', config.liquidationBonus);
+        console.log('Liquidation protocol fee ', config.liquidationProtocolFee);
         console.log('Reserve Factor ', config.reserveFactor);
         console.log(
             'Usage as collateral enabled ',
@@ -470,9 +479,11 @@ library AaveV3Helpers {
         console.log('Supply cap ', config.supplyCap);
         console.log('Borrow cap ', config.borrowCap);
         console.log('Debt ceiling ', config.debtCeiling);
+        console.log('eMode category ', config.eModeCategory);
         console.log('Interest rate strategy ', config.interestRateStrategy);
         console.log('Is active ', (config.isActive) ? 'Yes' : 'No');
         console.log('Is frozen ', (config.isFrozen) ? 'Yes' : 'No');
+        console.log('Is siloed ', (config.isSiloed) ? 'Yes' : 'No');
         console.log('-----');
         console.log('-----');
     }
@@ -485,6 +496,11 @@ library AaveV3Helpers {
             allConfigs,
             expectedConfig.symbol,
             false
+        );
+        require(
+            keccak256(bytes(config.symbol)) ==
+                keccak256(bytes(expectedConfig.symbol)),
+            '_validateConfigsInAave() : INVALID_SYMBOL'
         );
         require(
             config.underlying == expectedConfig.underlying,
@@ -505,6 +521,11 @@ library AaveV3Helpers {
         require(
             config.liquidationBonus == expectedConfig.liquidationBonus,
             '_validateConfigsInAave: INVALID_LIQ_BONUS'
+        );
+        require(
+            config.liquidationProtocolFee ==
+                expectedConfig.liquidationProtocolFee,
+            '_validateConfigsInAave: INVALID_LIQUIDATION_PROTOCOL_FEE'
         );
         require(
             config.reserveFactor == expectedConfig.reserveFactor,
@@ -534,6 +555,10 @@ library AaveV3Helpers {
             '_validateConfigsInAave: INVALID_IS_FROZEN'
         );
         require(
+            config.isSiloed == expectedConfig.isSiloed,
+            '_validateConfigsInAave: INVALID_IS_SILOED'
+        );
+        require(
             config.supplyCap == expectedConfig.supplyCap,
             '_validateConfigsInAave: INVALID_SUPPLY_CAP'
         );
@@ -544,6 +569,14 @@ library AaveV3Helpers {
         require(
             config.debtCeiling == expectedConfig.debtCeiling,
             '_validateConfigsInAave: INVALID_DEBT_CEILING'
+        );
+        require(
+            config.eModeCategory == expectedConfig.eModeCategory,
+            '_validateConfigsInAave: INVALID_EMODE_CATEGORY'
+        );
+        require(
+            config.interestRateStrategy == expectedConfig.interestRateStrategy,
+            '_validateConfigsInAave: INVALID_INTEREST_RATE_STRATEGY'
         );
     }
 
