@@ -30,9 +30,12 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
     address public constant SAVAX_PRICE_FEED =
         0xc9245871D69BF4c36c6F2D15E0D68Ffa883FE1A7;
 
+    address public constant RATE_STRATEGY =
+        0x79a906e8c998d2fb5C5D66d23c4c5416Fe0168D6;
+
     function setUp() public {}
 
-    function testListing() public {
+    function testListingSAVAX() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
             ._getReservesConfigs(false);
 
@@ -54,7 +57,7 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
 
         ReserveConfig memory expectedAssetConfig = ReserveConfig({
             symbol: 'sAVAX',
-            underlying: 0x2b2C81e08f1Af8835a78Bb2A90AE924ACE0eA4bE,
+            underlying: SAVAX,
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
@@ -62,16 +65,19 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
             ltv: 2000,
             liquidationThreshold: 3000,
             liquidationBonus: 11000,
+            liquidationProtocolFee: 1000,
             reserveFactor: 1000,
             usageAsCollateralEnabled: true,
             borrowingEnabled: false,
-            interestRateStrategy: address(0),
+            interestRateStrategy: RATE_STRATEGY,
             stableBorrowRateEnabled: false,
             isActive: true,
             isFrozen: false,
+            isSiloed: false,
             supplyCap: 500_000,
             borrowCap: 0,
-            debtCeiling: 0
+            debtCeiling: 0,
+            eModeCategory: 2
         });
 
         AaveV3Helpers._validateReserveConfig(
