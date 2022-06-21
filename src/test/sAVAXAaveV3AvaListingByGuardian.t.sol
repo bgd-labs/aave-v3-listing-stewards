@@ -3,8 +3,8 @@ pragma solidity ^0.8.13;
 
 import 'forge-std/Test.sol';
 
-import {IPoolConfigurator, ConfiguratorInputTypes} from '../contracts/interfaces/IPoolConfigurator.sol';
-import {IACLManager} from '../contracts/interfaces/IACLManager.sol';
+import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
+import {IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3SAVAXListingSteward} from '../contracts/savax/AaveV3SAVAXListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
@@ -40,9 +40,7 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
 
         AaveV3SAVAXListingSteward listingSteward = new AaveV3SAVAXListingSteward();
 
-        IACLManager aclManager = IACLManager(
-            listingSteward.ADDRESSES_PROVIDER().getACLManager()
-        );
+        IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 
         aclManager.addAssetListingAdmin(address(listingSteward));
         aclManager.addRiskAdmin(address(listingSteward));
