@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.10;
 
-import {IPoolConfigurator ,ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
+import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
 import {Ownable} from '../dependencies/Ownable.sol';
 
@@ -64,6 +64,12 @@ contract AaveV3SAVAXListingSteward is Ownable {
     uint256 public constant RESERVE_FACTOR = 1000; // 10%
     uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
 
+    // **************************
+    // Other assets affected
+    // **************************
+
+    address public constant WAVAX = 0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7;
+
     function listAssetAddingOracle() external onlyOwner {
         // ----------------------------
         // 1. New price feed on oracle
@@ -76,10 +82,7 @@ contract AaveV3SAVAXListingSteward is Ownable {
         address[] memory sources = new address[](1);
         sources[0] = SAVAX_PRICE_FEED;
 
-        AaveV3Avalanche.ORACLE.setAssetSources(
-            assets,
-            sources
-        );
+        AaveV3Avalanche.ORACLE.setAssetSources(assets, sources);
 
         // -----------------------------------------
         // 2. Creation of new eMode on the Aave Pool
@@ -134,6 +137,8 @@ contract AaveV3SAVAXListingSteward is Ownable {
         );
 
         configurator.setAssetEModeCategory(SAVAX, NEW_EMODE_ID);
+
+        configurator.setAssetEModeCategory(WAVAX, NEW_EMODE_ID);
 
         configurator.setReserveFactor(SAVAX, RESERVE_FACTOR);
 

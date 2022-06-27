@@ -108,6 +108,16 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
             listingSteward.owner() == address(0),
             'INVALID_OWNER_POST_LISTING'
         );
+
+        string[] memory expectedAssetsEmode = new string[](2);
+        expectedAssetsEmode[0] = 'WAVAX';
+        expectedAssetsEmode[1] = 'sAVAX';
+
+        AaveV3Helpers._validateAssetsOnEmodeCategory(
+            2,
+            allConfigsAfter,
+            expectedAssetsEmode
+        );
     }
 
     function _validatePoolActionsPostListing(
