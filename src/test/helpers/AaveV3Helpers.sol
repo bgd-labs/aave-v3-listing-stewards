@@ -648,63 +648,88 @@ library AaveV3Helpers {
         ReserveConfig[] memory allConfigsAfter
     ) internal pure {
         for (uint256 i = 0; i < allConfigsBefore.length; i++) {
-            require(
-                keccak256(abi.encodePacked(allConfigsBefore[i].symbol)) ==
-                    keccak256(abi.encodePacked(allConfigsAfter[i].symbol)),
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_SYMBOL_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].underlying == allConfigsAfter[i].underlying,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_UNDERLYING_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].decimals == allConfigsAfter[i].decimals,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_DECIMALS_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].ltv == allConfigsAfter[i].ltv,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_LTV_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].liquidationThreshold ==
-                    allConfigsAfter[i].liquidationThreshold,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_LIQ_THRESHOLD_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].liquidationBonus ==
-                    allConfigsAfter[i].liquidationBonus,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_LIQ_BONUS_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].reserveFactor ==
-                    allConfigsAfter[i].reserveFactor,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_RESERVE_FACTOR_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].usageAsCollateralEnabled ==
-                    allConfigsAfter[i].usageAsCollateralEnabled,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_USAGE_AS_COLLATERAL_ENABLED_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].borrowingEnabled ==
-                    allConfigsAfter[i].borrowingEnabled,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_BORROWING_ENABLED_CHANGED'
-            );
-
-            require(
-                allConfigsBefore[i].stableBorrowRateEnabled ==
-                    allConfigsAfter[i].stableBorrowRateEnabled,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_STABLE_BORROWING_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].isActive == allConfigsAfter[i].isActive,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_IS_ACTIVE_CHANGED'
-            );
-            require(
-                allConfigsBefore[i].isFrozen == allConfigsAfter[i].isFrozen,
-                '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_IS_FROZEN_CHANGED'
-            );
+            _requireNoChangeInConfigs(allConfigsBefore[i], allConfigsAfter[i]);
         }
+    }
+
+    function _noReservesConfigsChangesApartFrom(
+        ReserveConfig[] memory allConfigsBefore,
+        ReserveConfig[] memory allConfigsAfter,
+        string memory assetChangedSymbol
+    ) internal pure {
+        require(
+            allConfigsBefore.length == allConfigsAfter.length,
+            'A_UNEXPECTED_NEW_LISTING_HAPPENED'
+        );
+
+        for (uint256 i = 0; i < allConfigsBefore.length; i++) {
+            if (
+                keccak256(abi.encodePacked(assetChangedSymbol)) !=
+                keccak256(abi.encodePacked(allConfigsBefore[i].symbol))
+            ) {
+                _requireNoChangeInConfigs(
+                    allConfigsBefore[i],
+                    allConfigsAfter[i]
+                );
+            }
+        }
+    }
+
+    function _requireNoChangeInConfigs(
+        ReserveConfig memory config1,
+        ReserveConfig memory config2
+    ) internal pure {
+        require(
+            keccak256(abi.encodePacked(config1.symbol)) ==
+                keccak256(abi.encodePacked(config2.symbol)),
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_SYMBOL_CHANGED'
+        );
+        require(
+            config1.underlying == config2.underlying,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_UNDERLYING_CHANGED'
+        );
+        require(
+            config1.decimals == config2.decimals,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_DECIMALS_CHANGED'
+        );
+        require(
+            config1.ltv == config2.ltv,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_LTV_CHANGED'
+        );
+        require(
+            config1.liquidationThreshold == config2.liquidationThreshold,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_LIQ_THRESHOLD_CHANGED'
+        );
+        require(
+            config1.liquidationBonus == config2.liquidationBonus,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_LIQ_BONUS_CHANGED'
+        );
+        require(
+            config1.reserveFactor == config2.reserveFactor,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_RESERVE_FACTOR_CHANGED'
+        );
+        require(
+            config1.usageAsCollateralEnabled ==
+                config2.usageAsCollateralEnabled,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_USAGE_AS_COLLATERAL_ENABLED_CHANGED'
+        );
+        require(
+            config1.borrowingEnabled == config2.borrowingEnabled,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_BORROWING_ENABLED_CHANGED'
+        );
+
+        require(
+            config1.stableBorrowRateEnabled == config2.stableBorrowRateEnabled,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_STABLE_BORROWING_CHANGED'
+        );
+        require(
+            config1.isActive == config2.isActive,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_IS_ACTIVE_CHANGED'
+        );
+        require(
+            config1.isFrozen == config2.isFrozen,
+            '_noReservesConfigsChangesApartNewListings() : UNEXPECTED_IS_FROZEN_CHANGED'
+        );
     }
 
     function _validateCountOfListings(
@@ -846,7 +871,7 @@ library AaveV3Helpers {
         uint256 category,
         ReserveConfig[] memory assetsConfigs,
         string[] memory expectedAssets
-    ) internal view {
+    ) internal pure {
         string[] memory assetsInCategory = new string[](assetsConfigs.length);
 
         uint256 countCategory;
