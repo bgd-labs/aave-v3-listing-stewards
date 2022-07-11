@@ -20,7 +20,7 @@ contract AaveV3FRAXListingSteward is Ownable {
     // **************************
 
     address public constant FRAX = 0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64;
-    uint8 public constant FRAX_DECIMALS = 6;
+    uint8 public constant FRAX_DECIMALS = 18;
     string public constant FRAX_NAME = 'Aave Avalanche FRAX';
     string public constant AFRAX_SYMBOL = 'aAvaFRAX';
     string public constant VDFRAX_NAME = 'Aave Avalanche Variable Debt FRAX';

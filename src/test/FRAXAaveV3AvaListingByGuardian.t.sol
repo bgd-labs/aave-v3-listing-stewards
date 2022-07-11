@@ -58,7 +58,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
-            decimals: 6,
+            decimals: 18,
             ltv: 7500,
             liquidationThreshold: 8000,
             liquidationBonus: 10500,
@@ -133,7 +133,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             FRAX_WHALE,
             FRAX_WHALE,
             FRAX,
-            666_000_000,
+            666 ether,
             true,
             aFRAX
         );
@@ -153,7 +153,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             FRAX_WHALE,
             FRAX_WHALE,
             FRAX,
-            200_000_000,
+            200 ether,
             2,
             vFRAX
         );
@@ -165,7 +165,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
                 FRAX_WHALE,
                 FRAX_WHALE,
                 FRAX,
-                200_000_000,
+                200 ether,
                 2,
                 vFRAX
             )
@@ -186,7 +186,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
                 FRAX_WHALE,
                 FRAX_WHALE,
                 FRAX,
-                10_000_000,
+                10 ether,
                 1,
                 sFRAX
             )
