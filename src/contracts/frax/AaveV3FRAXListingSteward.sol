@@ -41,14 +41,13 @@ contract AaveV3FRAXListingSteward is Ownable {
         0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
     uint256 public constant LTV = 7500; // 75%
     uint256 public constant LIQ_THRESHOLD = 8000; // 80%
-    uint256 public constant RESERVE_FACTOR = 500; // 5%
+    uint256 public constant RESERVE_FACTOR = 1000; // 10%
 
-    uint256 public constant LIQ_BONUS = 11000; // 10% TODO review
-    uint256 public constant SUPPLY_CAP = 5_000_000; // TODO review
-    uint256 public constant BORROW_CAP = 5_000_000; // TODO review
-    uint256 public constant LIQ_PROTOCOL_FEE = 1000; // TODO review
+    uint256 public constant LIQ_BONUS = 10500; // 5%
+    uint256 public constant SUPPLY_CAP = 50_000_000; // 50m FRAX
+    uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
 
-    uint256 public constant DEBT_CEILING = 2_500_000_00; // TODO review
+    uint256 public constant DEBT_CEILING = 2_000_000_00; // 2m
 
     uint8 public constant EMODE_CATEGORY = 1; // Stablecoins
 
@@ -67,7 +66,7 @@ contract AaveV3FRAXListingSteward is Ownable {
         AaveV3Avalanche.ORACLE.setAssetSources(assets, sources);
 
         // ------------------------------------------------
-        // 3. Listing of FRAX, with all its configurations
+        // 2. Listing of FRAX, with all its configurations
         // ------------------------------------------------
 
         ConfiguratorInputTypes.InitReserveInput[]
@@ -98,8 +97,6 @@ contract AaveV3FRAXListingSteward is Ownable {
 
         configurator.setSupplyCap(FRAX, SUPPLY_CAP);
 
-        configurator.setBorrowCap(FRAX, BORROW_CAP);
-
         configurator.setDebtCeiling(FRAX, DEBT_CEILING);
 
         configurator.setReserveBorrowing(FRAX, true);
@@ -120,7 +117,7 @@ contract AaveV3FRAXListingSteward is Ownable {
         configurator.setLiquidationProtocolFee(FRAX, LIQ_PROTOCOL_FEE);
 
         // ---------------------------------------------------------------
-        // 4. This contract renounces to both listing and risk admin roles
+        // 3. This contract renounces to both listing and risk admin roles
         // ---------------------------------------------------------------
         IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 

@@ -61,9 +61,9 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             decimals: 6,
             ltv: 7500,
             liquidationThreshold: 8000,
-            liquidationBonus: 11000,
+            liquidationBonus: 10500,
             liquidationProtocolFee: 1000,
-            reserveFactor: 500,
+            reserveFactor: 1000,
             usageAsCollateralEnabled: true,
             borrowingEnabled: true,
             interestRateStrategy: AaveV3Helpers
@@ -73,9 +73,9 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             isActive: true,
             isFrozen: false,
             isSiloed: false,
-            supplyCap: 5_000_000,
-            borrowCap: 5_000_000,
-            debtCeiling: 2_500_000_00,
+            supplyCap: 50_000_000,
+            borrowCap: 0,
+            debtCeiling: 2_000_000_00,
             eModeCategory: 1
         });
 
