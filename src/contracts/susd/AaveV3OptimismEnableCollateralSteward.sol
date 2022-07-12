@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.0;
 
-import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
+import '../common/StewardBase.sol';
 import {AaveV3Optimism} from 'aave-address-book/AaveAddressBook.sol';
-import {Ownable} from '../dependencies/Ownable.sol';
 
 /**
  * @dev One-time-use helper contract to be used by Aave Guardians (Gnosis Safe generally).
@@ -13,7 +12,7 @@ import {Ownable} from '../dependencies/Ownable.sol';
  * - The contracts renounces to the permissions after the action.
  * - The contract "burns" the ownership after the action.
  */
-contract AaveV3OptimismEnableCollateralSteward is Ownable {
+contract AaveV3OptimismEnableCollateralSteward is StewardBase {
     // **************************
     // Asset to change config from (SUSD)
     // **************************
@@ -26,7 +25,12 @@ contract AaveV3OptimismEnableCollateralSteward is Ownable {
     uint256 public constant LIQ_BONUS = 10500; // 5%
     uint256 public constant SUPPLY_CAP = 10_000_000; // 10'000'000 sUSD
 
-    function updateSUSDConfig() external onlyOwner {
+    function updateSUSDConfig()
+        external
+        withRennounceOfAllAavePermissions(AaveV3Optimism.ACL_MANAGER)
+        withOwnershipBurning
+        onlyOwner
+    {
         // ------------------------------------------------
         // 1. Configuration of sUSD
         // ------------------------------------------------
@@ -43,18 +47,5 @@ contract AaveV3OptimismEnableCollateralSteward is Ownable {
         );
 
         configurator.setReserveInterestRateStrategyAddress(SUSD, RATE_STRATEGY);
-
-        // ---------------------------------------------------------------
-        // 4. Renouncing risk admin role
-        // ---------------------------------------------------------------
-        IACLManager aclManager = AaveV3Optimism.ACL_MANAGER;
-
-        aclManager.renounceRole(aclManager.RISK_ADMIN_ROLE(), address(this));
-
-        // ---------------------------------------------------------------
-        // 4. Removal of owner, to disallow any other call of this function
-        // ---------------------------------------------------------------
-
-        _transferOwnership(address(0));
     }
 }
