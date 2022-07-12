@@ -3,9 +3,9 @@ pragma solidity ^0.8.10;
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
-import {Ownable} from '../dependencies/Ownable.sol';
+import {StewardBase} from '../common/StewardBase.sol';
 
-contract AaveV3FantomFRAXListingSteward is Ownable {
+contract AaveV3FantomFRAXListingSteward is StewardBase {
     // **************************
     // Protocol's contracts
     // **************************
@@ -51,7 +51,12 @@ contract AaveV3FantomFRAXListingSteward is Ownable {
 
     uint8 public constant EMODE_CATEGORY = 1; // Stablecoins
 
-    function listAssetAddingOracle() external onlyOwner {
+    function listAssetAddingOracle()
+        external
+        withRennounceOfAllAavePermissions(AaveV3Fantom.ACL_MANAGER)
+        withOwnershipBurning
+        onlyOwner
+    {
         // ----------------------------
         // 1. New price feed on oracle
         // ----------------------------
@@ -115,22 +120,5 @@ contract AaveV3FantomFRAXListingSteward is Ownable {
         configurator.setReserveFactor(FRAX, RESERVE_FACTOR);
 
         configurator.setLiquidationProtocolFee(FRAX, LIQ_PROTOCOL_FEE);
-
-        // ---------------------------------------------------------------
-        // 3. This contract renounces to both listing and risk admin roles
-        // ---------------------------------------------------------------
-        IACLManager aclManager = AaveV3Fantom.ACL_MANAGER;
-
-        aclManager.renounceRole(
-            aclManager.ASSET_LISTING_ADMIN_ROLE(),
-            address(this)
-        );
-        aclManager.renounceRole(aclManager.RISK_ADMIN_ROLE(), address(this));
-
-        // ---------------------------------------------------------------
-        // 4. Removal of owner, to disallow any other call of this function
-        // ---------------------------------------------------------------
-
-        _transferOwnership(address(0));
     }
 }
