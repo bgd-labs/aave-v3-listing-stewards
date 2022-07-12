@@ -4,31 +4,31 @@ pragma solidity ^0.8.13;
 import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
-import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3AvaFRAXListingSteward} from '../contracts/frax/AaveV3AvaFRAXListingSteward.sol';
+import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
+import {AaveV3FantomFRAXListingSteward} from '../contracts/frax/AaveV3FantomFRAXListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
-contract FRAXAaveV3AvaListingByGuardian is Test {
+contract FRAXAaveV3FantomListingByGuardian is Test {
     using stdStorage for StdStorage;
 
-    address public constant GUARDIAN_AVALANCHE =
-        0xa35b76E4935449E33C56aB24b23fcd3246f13470;
+    address public constant GUARDIAN =
+        0x39CB97b105173b56b5a2b4b33AD25d6a50E6c949;
 
     address public constant CURRENT_ACL_SUPERADMIN =
-        0x4365F8e70CF38C6cA67DE41448508F2da8825500;
+        0x39CB97b105173b56b5a2b4b33AD25d6a50E6c949;
 
-    address public constant FRAX = 0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64;
+    address public constant FRAX = 0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355;
 
     address public constant FRAX_WHALE =
-        0x6FD4b4c38ED80727EcD0d58505565F9e422c965f;
+        0x7a656B342E14F745e2B164890E88017e27AE7320;
 
-    address public constant DAIe = 0xd586E7F844cEa2F87f50152665BCbc2C279D8d70;
+    address public constant DAI = 0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E;
 
     address public constant DAI_WHALE =
-        0xED2a7edd7413021d440b09D654f3b87712abAB66;
+        0xd652776dE7Ad802be5EC7beBfafdA37600222B48;
 
     address public constant RATE_STRATEGY =
-        0x5124Efd106b75F6c6876D1c84482D995b8eaD05a;
+        0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
 
     function setUp() public {}
 
@@ -36,11 +36,11 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
             ._getReservesConfigs(false);
 
-        vm.startPrank(GUARDIAN_AVALANCHE);
+        vm.startPrank(GUARDIAN);
 
-        AaveV3AvaFRAXListingSteward listingSteward = new AaveV3AvaFRAXListingSteward();
+        AaveV3FantomFRAXListingSteward listingSteward = new AaveV3FantomFRAXListingSteward();
 
-        IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
+        IACLManager aclManager = AaveV3Fantom.ACL_MANAGER;
 
         aclManager.addAssetListingAdmin(address(listingSteward));
         aclManager.addRiskAdmin(address(listingSteward));
@@ -50,7 +50,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
         vm.stopPrank();
 
         ReserveConfig[] memory allConfigsAfter = AaveV3Helpers
-            ._getReservesConfigs(false);
+            ._getReservesConfigs(true);
 
         ReserveConfig memory expectedAssetConfig = ReserveConfig({
             symbol: 'FRAX',
@@ -67,7 +67,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             usageAsCollateralEnabled: true,
             borrowingEnabled: true,
             interestRateStrategy: AaveV3Helpers
-                ._findReserveConfig(allConfigsAfter, 'USDt', false)
+                ._findReserveConfig(allConfigsAfter, 'fUSDT', false)
                 .interestRateStrategy,
             stableBorrowRateEnabled: false,
             isActive: true,
@@ -125,7 +125,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             ._findReserveConfig(allReservesConfigs, 'FRAX', false)
             .stableDebtToken;
         address vDAI = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
+            ._findReserveConfig(allReservesConfigs, 'DAI', false)
             .variableDebtToken;
 
         AaveV3Helpers._deposit(
@@ -142,7 +142,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             vm,
             FRAX_WHALE,
             FRAX_WHALE,
-            DAIe,
+            DAI,
             222 ether,
             2,
             vDAI
@@ -201,7 +201,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
         }
 
         vm.startPrank(DAI_WHALE);
-        IERC20(DAIe).transfer(FRAX_WHALE, 300 ether);
+        IERC20(DAI).transfer(FRAX_WHALE, 300 ether);
         vm.stopPrank();
 
         // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
@@ -211,8 +211,8 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             vm,
             FRAX_WHALE,
             FRAX_WHALE,
-            DAIe,
-            IERC20(DAIe).balanceOf(FRAX_WHALE),
+            DAI,
+            IERC20(DAI).balanceOf(FRAX_WHALE),
             2,
             vDAI,
             true

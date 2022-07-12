@@ -2,16 +2,16 @@
 pragma solidity ^0.8.10;
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
-import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
+import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
 import {Ownable} from '../dependencies/Ownable.sol';
 
-contract AaveV3FRAXListingSteward is Ownable {
+contract AaveV3FantomFRAXListingSteward is Ownable {
     // **************************
     // Protocol's contracts
     // **************************
 
-    address public constant AAVE_AVALANCHE_TREASURY =
-        0x5ba7fd868c40c16f7aDfAe6CF87121E13FC2F7a0;
+    address public constant AAVE_TREASURY =
+        0xBe85413851D195fC6341619cD68BfDc26a25b928;
     address public constant INCENTIVES_CONTROLLER =
         0x929EC64c34a17401F460460D4B9390518E5B473e;
 
@@ -19,17 +19,17 @@ contract AaveV3FRAXListingSteward is Ownable {
     // New asset being listed (FRAX)
     // **************************
 
-    address public constant FRAX = 0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64;
-    uint8 public constant FRAX_DECIMALS = 6;
-    string public constant FRAX_NAME = 'Aave Avalanche FRAX';
-    string public constant AFRAX_SYMBOL = 'aAvaFRAX';
-    string public constant VDFRAX_NAME = 'Aave Avalanche Variable Debt FRAX';
-    string public constant VDFRAX_SYMBOL = 'variableDebtAvaFRAX';
-    string public constant SDFRAX_NAME = 'Aave Avalanche Stable Debt FRAX';
-    string public constant SDFRAX_SYMBOL = 'stableDebtAvaFRAX';
+    address public constant FRAX = 0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355;
+    uint8 public constant FRAX_DECIMALS = 18;
+    string public constant FRAX_NAME = 'Aave Fantom FRAX';
+    string public constant AFRAX_SYMBOL = 'aFanFRAX';
+    string public constant VDFRAX_NAME = 'Aave Fantom Variable Debt FRAX';
+    string public constant VDFRAX_SYMBOL = 'variableDebtFanFRAX';
+    string public constant SDFRAX_NAME = 'Aave Fantom Stable Debt FRAX';
+    string public constant SDFRAX_SYMBOL = 'stableDebtFanFRAX';
 
     address public constant PRICE_FEED_FRAX =
-        0xbBa56eF1565354217a3353a466edB82E8F25b08e;
+        0xBaC409D670d996Ef852056f6d45eCA41A8D57FbD;
 
     address public constant ATOKEN_IMPL =
         0xa5ba6E5EC19a1Bf23C857991c857dB62b2Aa187B;
@@ -63,7 +63,7 @@ contract AaveV3FRAXListingSteward is Ownable {
         address[] memory sources = new address[](1);
         sources[0] = PRICE_FEED_FRAX;
 
-        AaveV3Avalanche.ORACLE.setAssetSources(assets, sources);
+        AaveV3Fantom.ORACLE.setAssetSources(assets, sources);
 
         // ------------------------------------------------
         // 2. Listing of FRAX, with all its configurations
@@ -80,7 +80,7 @@ contract AaveV3FRAXListingSteward is Ownable {
             underlyingAssetDecimals: FRAX_DECIMALS,
             interestRateStrategyAddress: RATE_STRATEGY,
             underlyingAsset: FRAX,
-            treasury: AAVE_AVALANCHE_TREASURY,
+            treasury: AAVE_TREASURY,
             incentivesController: INCENTIVES_CONTROLLER,
             aTokenName: FRAX_NAME,
             aTokenSymbol: AFRAX_SYMBOL,
@@ -91,7 +91,7 @@ contract AaveV3FRAXListingSteward is Ownable {
             params: bytes('')
         });
 
-        IPoolConfigurator configurator = AaveV3Avalanche.POOL_CONFIGURATOR;
+        IPoolConfigurator configurator = AaveV3Fantom.POOL_CONFIGURATOR;
 
         configurator.initReserves(initReserveInputs);
 
@@ -119,7 +119,7 @@ contract AaveV3FRAXListingSteward is Ownable {
         // ---------------------------------------------------------------
         // 3. This contract renounces to both listing and risk admin roles
         // ---------------------------------------------------------------
-        IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
+        IACLManager aclManager = AaveV3Fantom.ACL_MANAGER;
 
         aclManager.renounceRole(
             aclManager.ASSET_LISTING_ADMIN_ROLE(),
