@@ -45,14 +45,14 @@ contract AaveV3OptimismEnableCollateralSteward is Ownable {
         configurator.setReserveInterestRateStrategyAddress(SUSD, RATE_STRATEGY);
 
         // ---------------------------------------------------------------
-        // 4. Renouncing risk admin role
+        // 2. Renouncing risk admin role
         // ---------------------------------------------------------------
         IACLManager aclManager = AaveV3Optimism.ACL_MANAGER;
 
         aclManager.renounceRole(aclManager.RISK_ADMIN_ROLE(), address(this));
 
         // ---------------------------------------------------------------
-        // 4. Removal of owner, to disallow any other call of this function
+        // 3. Removal of owner, to disallow any other call of this function
         // ---------------------------------------------------------------
 
         _transferOwnership(address(0));
