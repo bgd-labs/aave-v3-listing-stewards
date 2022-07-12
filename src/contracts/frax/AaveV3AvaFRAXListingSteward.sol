@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
+import '../common/StewardBase.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
-import {Ownable} from '../dependencies/Ownable.sol';
 
-contract AaveV3FRAXListingSteward is Ownable {
+contract AaveV3AvaFRAXListingSteward is StewardBase {
     // **************************
     // Protocol's contracts
     // **************************
 
-    address public constant AAVE_AVALANCHE_TREASURY =
+    address public constant AAVE_TREASURY =
         0x5ba7fd868c40c16f7aDfAe6CF87121E13FC2F7a0;
     address public constant INCENTIVES_CONTROLLER =
         0x929EC64c34a17401F460460D4B9390518E5B473e;
@@ -20,7 +19,6 @@ contract AaveV3FRAXListingSteward is Ownable {
     // **************************
 
     address public constant FRAX = 0xD24C2Ad096400B6FBcd2ad8B24E7acBc21A1da64;
-    uint8 public constant FRAX_DECIMALS = 6;
     string public constant FRAX_NAME = 'Aave Avalanche FRAX';
     string public constant AFRAX_SYMBOL = 'aAvaFRAX';
     string public constant VDFRAX_NAME = 'Aave Avalanche Variable Debt FRAX';
@@ -41,18 +39,22 @@ contract AaveV3FRAXListingSteward is Ownable {
         0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
     uint256 public constant LTV = 7500; // 75%
     uint256 public constant LIQ_THRESHOLD = 8000; // 80%
-    uint256 public constant RESERVE_FACTOR = 500; // 5%
+    uint256 public constant RESERVE_FACTOR = 1000; // 10%
 
-    uint256 public constant LIQ_BONUS = 11000; // 10% TODO review
-    uint256 public constant SUPPLY_CAP = 5_000_000; // TODO review
-    uint256 public constant BORROW_CAP = 5_000_000; // TODO review
-    uint256 public constant LIQ_PROTOCOL_FEE = 1000; // TODO review
+    uint256 public constant LIQ_BONUS = 10500; // 5%
+    uint256 public constant SUPPLY_CAP = 50_000_000; // 50m FRAX
+    uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
 
-    uint256 public constant DEBT_CEILING = 2_500_000_00; // TODO review
+    uint256 public constant DEBT_CEILING = 2_000_000_00; // 2m
 
     uint8 public constant EMODE_CATEGORY = 1; // Stablecoins
 
-    function listAssetAddingOracle() external onlyOwner {
+    function listAssetAddingOracle()
+        external
+        withRennounceOfAllAavePermissions(AaveV3Avalanche.ACL_MANAGER)
+        withOwnershipBurning
+        onlyOwner
+    {
         // ----------------------------
         // 1. New price feed on oracle
         // ----------------------------
@@ -67,7 +69,7 @@ contract AaveV3FRAXListingSteward is Ownable {
         AaveV3Avalanche.ORACLE.setAssetSources(assets, sources);
 
         // ------------------------------------------------
-        // 3. Listing of FRAX, with all its configurations
+        // 2. Listing of FRAX, with all its configurations
         // ------------------------------------------------
 
         ConfiguratorInputTypes.InitReserveInput[]
@@ -78,10 +80,10 @@ contract AaveV3FRAXListingSteward is Ownable {
             aTokenImpl: ATOKEN_IMPL,
             stableDebtTokenImpl: SDTOKEN_IMPL,
             variableDebtTokenImpl: VDTOKEN_IMPL,
-            underlyingAssetDecimals: FRAX_DECIMALS,
+            underlyingAssetDecimals: IERC20(FRAX).decimals(),
             interestRateStrategyAddress: RATE_STRATEGY,
             underlyingAsset: FRAX,
-            treasury: AAVE_AVALANCHE_TREASURY,
+            treasury: AAVE_TREASURY,
             incentivesController: INCENTIVES_CONTROLLER,
             aTokenName: FRAX_NAME,
             aTokenSymbol: AFRAX_SYMBOL,
@@ -97,8 +99,6 @@ contract AaveV3FRAXListingSteward is Ownable {
         configurator.initReserves(initReserveInputs);
 
         configurator.setSupplyCap(FRAX, SUPPLY_CAP);
-
-        configurator.setBorrowCap(FRAX, BORROW_CAP);
 
         configurator.setDebtCeiling(FRAX, DEBT_CEILING);
 
@@ -118,22 +118,5 @@ contract AaveV3FRAXListingSteward is Ownable {
         configurator.setReserveFactor(FRAX, RESERVE_FACTOR);
 
         configurator.setLiquidationProtocolFee(FRAX, LIQ_PROTOCOL_FEE);
-
-        // ---------------------------------------------------------------
-        // 4. This contract renounces to both listing and risk admin roles
-        // ---------------------------------------------------------------
-        IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
-
-        aclManager.renounceRole(
-            aclManager.ASSET_LISTING_ADMIN_ROLE(),
-            address(this)
-        );
-        aclManager.renounceRole(aclManager.RISK_ADMIN_ROLE(), address(this));
-
-        // ---------------------------------------------------------------
-        // 4. Removal of owner, to disallow any other call of this function
-        // ---------------------------------------------------------------
-
-        _transferOwnership(address(0));
     }
 }
