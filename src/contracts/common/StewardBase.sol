@@ -2,6 +2,7 @@
 pragma solidity ^0.8.10;
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
+import {IERC20} from '../interfaces/IERC20.sol';
 import {Ownable} from '../dependencies/Ownable.sol';
 
 abstract contract StewardBase is Ownable {

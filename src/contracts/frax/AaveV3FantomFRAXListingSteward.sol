@@ -19,7 +19,6 @@ contract AaveV3FantomFRAXListingSteward is StewardBase {
     // **************************
 
     address public constant FRAX = 0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355;
-    uint8 public constant FRAX_DECIMALS = 18;
     string public constant FRAX_NAME = 'Aave Fantom FRAX';
     string public constant AFRAX_SYMBOL = 'aFanFRAX';
     string public constant VDFRAX_NAME = 'Aave Fantom Variable Debt FRAX';
@@ -81,7 +80,7 @@ contract AaveV3FantomFRAXListingSteward is StewardBase {
             aTokenImpl: ATOKEN_IMPL,
             stableDebtTokenImpl: SDTOKEN_IMPL,
             variableDebtTokenImpl: VDTOKEN_IMPL,
-            underlyingAssetDecimals: FRAX_DECIMALS,
+            underlyingAssetDecimals: IERC20(FRAX).decimals(),
             interestRateStrategyAddress: RATE_STRATEGY,
             underlyingAsset: FRAX,
             treasury: AAVE_TREASURY,
