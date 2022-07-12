@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import {IACLManager} from 'aave-address-book/AaveV3.sol';
+import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {Ownable} from '../dependencies/Ownable.sol';
 
 abstract contract StewardBase is Ownable {

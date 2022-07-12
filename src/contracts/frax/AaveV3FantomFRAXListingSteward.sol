@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
+import '../common/StewardBase.sol';
 import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
-import {StewardBase} from '../common/StewardBase.sol';
 
 contract AaveV3FantomFRAXListingSteward is StewardBase {
     // **************************

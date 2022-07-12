@@ -50,7 +50,7 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
         vm.stopPrank();
 
         ReserveConfig[] memory allConfigsAfter = AaveV3Helpers
-            ._getReservesConfigs(true);
+            ._getReservesConfigs(false);
 
         ReserveConfig memory expectedAssetConfig = ReserveConfig({
             symbol: 'FRAX',
