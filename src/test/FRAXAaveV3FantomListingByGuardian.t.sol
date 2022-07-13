@@ -99,6 +99,22 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
             })
         );
 
+        // impl should be same as on DAI
+        AaveV3Helpers._validateReserveTokensImpls(
+            vm,
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'DAI', false),
+            ReserveTokens({
+                aToken: listingSteward.ATOKEN_IMPL(),
+                stableDebtToken: listingSteward.SDTOKEN_IMPL(),
+                variableDebtToken: listingSteward.VDTOKEN_IMPL()
+            })
+        );
+        // strategy should be same as on DAI
+        assertEq(
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'DAI', false).interestRateStrategy,
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'FRAX', false).interestRateStrategy
+        );
+
         AaveV3Helpers._validateAssetSourceOnOracle(
             FRAX,
             listingSteward.PRICE_FEED_FRAX()
