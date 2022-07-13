@@ -11,6 +11,7 @@ import {AaveV3Optimism} from 'aave-address-book/AaveAddressBook.sol';
  * - The permissions needed in this case are: risk admin.
  * - The contracts renounces to the permissions after the action.
  * - The contract "burns" the ownership after the action.
+ * - Parameter snapshot: https://snapshot.org/#/aave.eth/proposal/Qmem5k8zotXSnV2mm3WJXqb8HmBoT8m2URzZCq3X8igHAm
  */
 contract AaveV3OptimismEnableCollateralSteward is StewardBase {
     // **************************
