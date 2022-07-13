@@ -10,8 +10,8 @@ import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
  * Opposed to the suggested parameters this proposal will
  * - Lowering the suggested 50M ceiling to a 2M ceiling
  * - Adding a 50M supply cap
- * - The eMode lq treshold will be 97.5, instead of the suggested 98%
- * - The reserve factor will be 10% instead of 5%
+ * - The eMode lq treshold will be 97.5, instead of the suggested 98% as the parameters are per emode not per asset
+ * - The reserve factor will be 10% instead of 5% to be consistent with other stable coins
  */
 contract AaveV3FantomFRAXListingSteward is StewardBase {
     // **************************
