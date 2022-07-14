@@ -103,6 +103,17 @@ contract MAIAaveV3FantomListingByGuardian is Test {
             listingSteward.PRICE_FEED()
         );
 
+        // impl should be same as USDC
+        AaveV3Helpers._validateReserveTokensImpls(
+            vm,
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'USDC', false),
+            ReserveTokens({
+                aToken: listingSteward.ATOKEN_IMPL(),
+                stableDebtToken: listingSteward.SDTOKEN_IMPL(),
+                variableDebtToken: listingSteward.VDTOKEN_IMPL()
+            })
+        );
+
         _validatePoolActionsPostListing(allConfigsAfter);
 
         require(
