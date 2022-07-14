@@ -9,7 +9,8 @@ import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
  * @dev This steward lists MAI (miMATIC) as borrowing asset on Aave V3 Avalanche
  * - Parameter snapshot: https://snapshot.org/#/aave.eth/proposal/0x751b8fd1c77677643e419d327bdf749c29ccf0a0269e58ed2af0013843376051
  * The proposal is, as agreed with the proposer, more conservative than the approved parameters:
- * - Not enabled as collateral initially.
+ * - Not enabled as collateral initially and thus not be isolated / have a debt ceiling.
+ * - The eMode lq treshold will be 97.5, instead of the suggested 98% as the parameters are per emode not per asset
  * - Adding a 10M supply cap.
  */
 contract AaveV3AvaMAIListingSteward is StewardBase {
