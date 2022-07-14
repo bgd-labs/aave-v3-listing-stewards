@@ -109,11 +109,6 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
                 variableDebtToken: listingSteward.VDTOKEN_IMPL()
             })
         );
-        // strategy should be same as USDC
-        assertEq(
-            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'USDC', false).interestRateStrategy,
-            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'FRAX', false).interestRateStrategy
-        );
 
         AaveV3Helpers._validateAssetSourceOnOracle(
             FRAX,
