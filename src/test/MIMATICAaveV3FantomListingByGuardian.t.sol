@@ -5,10 +5,10 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3FantomMAIListingSteward} from '../contracts/mai/AaveV3FantomMAIListingSteward.sol';
+import {AaveV3FantomMIMATICListingSteward} from '../contracts/mimatic/AaveV3FantomMIMATICListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
-contract MAIAaveV3FantomListingByGuardian is Test {
+contract MIMATICAaveV3FantomListingByGuardian is Test {
     using stdStorage for StdStorage;
 
     address public constant GUARDIAN =
@@ -17,9 +17,10 @@ contract MAIAaveV3FantomListingByGuardian is Test {
     address public constant CURRENT_ACL_SUPERADMIN =
         0x39CB97b105173b56b5a2b4b33AD25d6a50E6c949;
 
-    address public constant MAI = 0xfB98B335551a418cD0737375a2ea0ded62Ea213b;
+    address public constant MIMATIC =
+        0xfB98B335551a418cD0737375a2ea0ded62Ea213b;
 
-    address public constant MAI_WHALE = address(0); // There is a lot of burnt tokens
+    address public constant MIMATIC_WHALE = address(0); // There is a lot of burnt tokens
 
     address public constant DAI = 0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E;
 
@@ -37,7 +38,7 @@ contract MAIAaveV3FantomListingByGuardian is Test {
 
         vm.startPrank(GUARDIAN);
 
-        AaveV3FantomMAIListingSteward listingSteward = new AaveV3FantomMAIListingSteward();
+        AaveV3FantomMIMATICListingSteward listingSteward = new AaveV3FantomMIMATICListingSteward();
 
         IACLManager aclManager = AaveV3Fantom.ACL_MANAGER;
 
@@ -53,7 +54,7 @@ contract MAIAaveV3FantomListingByGuardian is Test {
 
         ReserveConfig memory expectedAssetConfig = ReserveConfig({
             symbol: 'miMATIC',
-            underlying: MAI,
+            underlying: MIMATIC,
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
@@ -72,7 +73,7 @@ contract MAIAaveV3FantomListingByGuardian is Test {
             isActive: true,
             isFrozen: false,
             isSiloed: false,
-            supplyCap: 10_000_000,
+            supplyCap: 50_000_000,
             borrowCap: 0,
             debtCeiling: 0,
             eModeCategory: 1
@@ -99,7 +100,7 @@ contract MAIAaveV3FantomListingByGuardian is Test {
         );
 
         AaveV3Helpers._validateAssetSourceOnOracle(
-            MAI,
+            MIMATIC,
             listingSteward.PRICE_FEED()
         );
 
@@ -125,42 +126,39 @@ contract MAIAaveV3FantomListingByGuardian is Test {
     function _validatePoolActionsPostListing(
         ReserveConfig[] memory allReservesConfigs
     ) internal {
-        address aMAI = AaveV3Helpers
+        address aMIMATIC = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'miMATIC', false)
             .aToken;
-        address vMAI = AaveV3Helpers
+        address vMIMATIC = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'miMATIC', false)
             .variableDebtToken;
-        address sMAI = AaveV3Helpers
+        address sMIMATIC = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'miMATIC', false)
             .stableDebtToken;
         address aDAI = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'DAI', false)
             .aToken;
-        address vDAI = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'DAI', false)
-            .variableDebtToken;
 
         AaveV3Helpers._deposit(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
             666 ether,
             true,
-            aMAI
+            aMIMATIC
         );
 
         // We check revert when trying to borrow (not enabled as collateral, so any mode works)
         try
             AaveV3Helpers._borrow(
                 vm,
-                MAI_WHALE,
-                MAI_WHALE,
-                MAI,
+                MIMATIC_WHALE,
+                MIMATIC_WHALE,
+                MIMATIC,
                 10 ether,
                 1,
-                sMAI
+                sMIMATIC
             )
         {
             revert('_testProposal() : BORROW_NOT_REVERTING');
@@ -173,13 +171,13 @@ contract MAIAaveV3FantomListingByGuardian is Test {
         }
 
         vm.startPrank(DAI_WHALE);
-        IERC20(DAI).transfer(MAI_WHALE, 666 ether);
+        IERC20(DAI).transfer(MIMATIC_WHALE, 666 ether);
         vm.stopPrank();
 
         AaveV3Helpers._deposit(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
             DAI,
             666 ether,
             true,
@@ -188,12 +186,12 @@ contract MAIAaveV3FantomListingByGuardian is Test {
 
         AaveV3Helpers._borrow(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
             222 ether,
             2,
-            vMAI
+            vMIMATIC
         );
 
         // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
@@ -201,22 +199,22 @@ contract MAIAaveV3FantomListingByGuardian is Test {
 
         AaveV3Helpers._repay(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
-            IERC20(MAI).balanceOf(MAI_WHALE),
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
+            IERC20(MIMATIC).balanceOf(MIMATIC_WHALE),
             2,
-            vMAI,
+            vMIMATIC,
             true
         );
 
         AaveV3Helpers._withdraw(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
             type(uint256).max,
-            aMAI
+            aMIMATIC
         );
     }
 }

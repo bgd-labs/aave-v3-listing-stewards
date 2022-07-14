@@ -2,42 +2,42 @@
 pragma solidity ^0.8.10;
 
 import '../common/StewardBase.sol';
-import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
-
+import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
 
 /**
- * @dev This steward lists MAI (miMATIC) as borrowing asset on Aave V3 Fantom
+ * @dev This steward lists MIMATIC (MAI) as borrowing asset on Aave V3 Avalanche
  * - Parameter snapshot: https://snapshot.org/#/aave.eth/proposal/0x751b8fd1c77677643e419d327bdf749c29ccf0a0269e58ed2af0013843376051
  * The proposal is, as agreed with the proposer, more conservative than the approved parameters:
  * - Not enabled as collateral initially and thus not be isolated / have a debt ceiling.
  * - The eMode lq treshold will be 97.5, instead of the suggested 98% as the parameters are per emode not per asset
  * - Adding a 10M supply cap.
  */
-contract AaveV3FantomMAIListingSteward is StewardBase {
+contract AaveV3AvaMIMATICListingSteward is StewardBase {
     // **************************
     // Protocol's contracts
     // **************************
 
     address public constant AAVE_TREASURY =
-        0xBe85413851D195fC6341619cD68BfDc26a25b928;
+        0x5ba7fd868c40c16f7aDfAe6CF87121E13FC2F7a0;
     address public constant INCENTIVES_CONTROLLER =
         0x929EC64c34a17401F460460D4B9390518E5B473e;
 
     // **************************
-    // New asset being listed (MAI)
+    // New asset being listed (MIMATIC)
     // **************************
 
     address public constant UNDERLYING =
-        0xfB98B335551a418cD0737375a2ea0ded62Ea213b;
-    string public constant ATOKEN_NAME = 'Aave Fantom MAI';
-    string public constant ATOKEN_SYMBOL = 'aFanMAI';
-    string public constant VDTOKEN_NAME = 'Aave Fantom Variable Debt MAI';
-    string public constant VDTOKEN_SYMBOL = 'variableDebtFanMAI';
-    string public constant SDTOKEN_NAME = 'Aave Fantom Stable Debt MAI';
-    string public constant SDTOKEN_SYMBOL = 'stableDebtFanMAI';
+        0x3B55E45fD6bd7d4724F5c47E0d1bCaEdd059263e;
+    string public constant ATOKEN_NAME = 'Aave Avalanche MIMATIC';
+    string public constant ATOKEN_SYMBOL = 'aAvaMIMATIC';
+    string public constant VDTOKEN_NAME =
+        'Aave Avalanche Variable Debt MIMATIC';
+    string public constant VDTOKEN_SYMBOL = 'variableDebtAvaMIMATIC';
+    string public constant SDTOKEN_NAME = 'Aave Avalanche Stable Debt MIMATIC';
+    string public constant SDTOKEN_SYMBOL = 'stableDebtAvaMIMATIC';
 
     address public constant PRICE_FEED =
-        0x827863222c9C603960dE6FF2c0dD58D457Dcc363;
+        0x5D1F504211c17365CA66353442a74D4435A8b778;
 
     address public constant ATOKEN_IMPL =
         0xa5ba6E5EC19a1Bf23C857991c857dB62b2Aa187B;
@@ -56,7 +56,7 @@ contract AaveV3FantomMAIListingSteward is StewardBase {
 
     function listAssetAddingOracle()
         external
-        withRennounceOfAllAavePermissions(AaveV3Fantom.ACL_MANAGER)
+        withRennounceOfAllAavePermissions(AaveV3Avalanche.ACL_MANAGER)
         withOwnershipBurning
         onlyOwner
     {
@@ -71,10 +71,10 @@ contract AaveV3FantomMAIListingSteward is StewardBase {
         address[] memory sources = new address[](1);
         sources[0] = PRICE_FEED;
 
-        AaveV3Fantom.ORACLE.setAssetSources(assets, sources);
+        AaveV3Avalanche.ORACLE.setAssetSources(assets, sources);
 
         // ------------------------------------------------
-        // 2. Listing of MAI, with all its configurations
+        // 2. Listing of MIMATIC, with all its configurations
         // ------------------------------------------------
 
         ConfiguratorInputTypes.InitReserveInput[]
@@ -99,7 +99,7 @@ contract AaveV3FantomMAIListingSteward is StewardBase {
             params: bytes('')
         });
 
-        IPoolConfigurator configurator = AaveV3Fantom.POOL_CONFIGURATOR;
+        IPoolConfigurator configurator = AaveV3Avalanche.POOL_CONFIGURATOR;
 
         configurator.initReserves(initReserveInputs);
 

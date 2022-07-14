@@ -5,10 +5,10 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3AvaMAIListingSteward} from '../contracts/mai/AaveV3AvaMAIListingSteward.sol';
+import {AaveV3AvaMIMATICListingSteward} from '../contracts/mimatic/AaveV3AvaMIMATICListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
-contract MAIAaveV3AvaListingByGuardian is Test {
+contract MIMATICAaveV3AvaListingByGuardian is Test {
     using stdStorage for StdStorage;
 
     address public constant GUARDIAN_AVALANCHE =
@@ -17,9 +17,10 @@ contract MAIAaveV3AvaListingByGuardian is Test {
     address public constant CURRENT_ACL_SUPERADMIN =
         0x4365F8e70CF38C6cA67DE41448508F2da8825500;
 
-    address public constant MAI = 0x3B55E45fD6bd7d4724F5c47E0d1bCaEdd059263e;
+    address public constant MIMATIC =
+        0x3B55E45fD6bd7d4724F5c47E0d1bCaEdd059263e;
 
-    address public constant MAI_WHALE =
+    address public constant MIMATIC_WHALE =
         0xbE56bFF41AD57971DEDfBa69f88b1d085E349d47;
 
     address public constant DAIe = 0xd586E7F844cEa2F87f50152665BCbc2C279D8d70;
@@ -38,7 +39,7 @@ contract MAIAaveV3AvaListingByGuardian is Test {
 
         vm.startPrank(GUARDIAN_AVALANCHE);
 
-        AaveV3AvaMAIListingSteward listingSteward = new AaveV3AvaMAIListingSteward();
+        AaveV3AvaMIMATICListingSteward listingSteward = new AaveV3AvaMIMATICListingSteward();
 
         IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 
@@ -54,7 +55,7 @@ contract MAIAaveV3AvaListingByGuardian is Test {
 
         ReserveConfig memory expectedAssetConfig = ReserveConfig({
             symbol: 'miMatic',
-            underlying: MAI,
+            underlying: MIMATIC,
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
@@ -100,7 +101,7 @@ contract MAIAaveV3AvaListingByGuardian is Test {
         );
 
         AaveV3Helpers._validateAssetSourceOnOracle(
-            MAI,
+            MIMATIC,
             listingSteward.PRICE_FEED()
         );
 
@@ -126,42 +127,39 @@ contract MAIAaveV3AvaListingByGuardian is Test {
     function _validatePoolActionsPostListing(
         ReserveConfig[] memory allReservesConfigs
     ) internal {
-        address aMAI = AaveV3Helpers
+        address aMIMATIC = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'miMatic', false)
             .aToken;
-        address vMAI = AaveV3Helpers
+        address vMIMATIC = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'miMatic', false)
             .variableDebtToken;
-        address sMAI = AaveV3Helpers
+        address sMIMATIC = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'miMatic', false)
             .stableDebtToken;
         address aDAI = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
             .aToken;
-        address vDAI = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
-            .variableDebtToken;
 
         AaveV3Helpers._deposit(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
             666 ether,
             true,
-            aMAI
+            aMIMATIC
         );
 
         // We check revert when trying to borrow (not enabled as collateral, so any mode works)
         try
             AaveV3Helpers._borrow(
                 vm,
-                MAI_WHALE,
-                MAI_WHALE,
-                MAI,
+                MIMATIC_WHALE,
+                MIMATIC_WHALE,
+                MIMATIC,
                 10 ether,
                 1,
-                sMAI
+                sMIMATIC
             )
         {
             revert('_testProposal() : BORROW_NOT_REVERTING');
@@ -174,13 +172,13 @@ contract MAIAaveV3AvaListingByGuardian is Test {
         }
 
         vm.startPrank(DAI_WHALE);
-        IERC20(DAIe).transfer(MAI_WHALE, 666 ether);
+        IERC20(DAIe).transfer(MIMATIC_WHALE, 666 ether);
         vm.stopPrank();
 
         AaveV3Helpers._deposit(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
             DAIe,
             666 ether,
             true,
@@ -189,12 +187,12 @@ contract MAIAaveV3AvaListingByGuardian is Test {
 
         AaveV3Helpers._borrow(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
             222 ether,
             2,
-            vMAI
+            vMIMATIC
         );
 
         // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
@@ -202,22 +200,22 @@ contract MAIAaveV3AvaListingByGuardian is Test {
 
         AaveV3Helpers._repay(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
-            IERC20(MAI).balanceOf(MAI_WHALE),
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
+            IERC20(MIMATIC).balanceOf(MIMATIC_WHALE),
             2,
-            vMAI,
+            vMIMATIC,
             true
         );
 
         AaveV3Helpers._withdraw(
             vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
             type(uint256).max,
-            aMAI
+            aMIMATIC
         );
     }
 }
