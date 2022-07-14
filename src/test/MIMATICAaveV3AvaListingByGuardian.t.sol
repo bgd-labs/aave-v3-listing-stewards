@@ -4,43 +4,44 @@ pragma solidity ^0.8.13;
 import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
-import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3FantomFRAXListingSteward} from '../contracts/frax/AaveV3FantomFRAXListingSteward.sol';
+import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
+import {AaveV3AvaMIMATICListingSteward} from '../contracts/mimatic/AaveV3AvaMIMATICListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
-contract FRAXAaveV3FantomListingByGuardian is Test {
+contract MIMATICAaveV3AvaListingByGuardian is Test {
     using stdStorage for StdStorage;
 
-    address public constant GUARDIAN =
-        0x39CB97b105173b56b5a2b4b33AD25d6a50E6c949;
+    address public constant GUARDIAN_AVALANCHE =
+        0xa35b76E4935449E33C56aB24b23fcd3246f13470;
 
     address public constant CURRENT_ACL_SUPERADMIN =
-        0x39CB97b105173b56b5a2b4b33AD25d6a50E6c949;
+        0x4365F8e70CF38C6cA67DE41448508F2da8825500;
 
-    address public constant FRAX = 0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355;
+    address public constant MIMATIC =
+        0x3B55E45fD6bd7d4724F5c47E0d1bCaEdd059263e;
 
-    address public constant FRAX_WHALE =
-        0x7a656B342E14F745e2B164890E88017e27AE7320;
+    address public constant MIMATIC_WHALE =
+        0xbE56bFF41AD57971DEDfBa69f88b1d085E349d47;
 
-    address public constant DAI = 0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E;
+    address public constant DAIe = 0xd586E7F844cEa2F87f50152665BCbc2C279D8d70;
 
     address public constant DAI_WHALE =
-        0xd652776dE7Ad802be5EC7beBfafdA37600222B48;
+        0xED2a7edd7413021d440b09D654f3b87712abAB66;
 
     address public constant RATE_STRATEGY =
         0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
 
     function setUp() public {}
 
-    function testListingFRAX() public {
+    function testListing() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
             ._getReservesConfigs(false);
 
-        vm.startPrank(GUARDIAN);
+        vm.startPrank(GUARDIAN_AVALANCHE);
 
-        AaveV3FantomFRAXListingSteward listingSteward = new AaveV3FantomFRAXListingSteward();
+        AaveV3AvaMIMATICListingSteward listingSteward = new AaveV3AvaMIMATICListingSteward();
 
-        IACLManager aclManager = AaveV3Fantom.ACL_MANAGER;
+        IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 
         aclManager.addAssetListingAdmin(address(listingSteward));
         aclManager.addRiskAdmin(address(listingSteward));
@@ -50,32 +51,32 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
         vm.stopPrank();
 
         ReserveConfig[] memory allConfigsAfter = AaveV3Helpers
-            ._getReservesConfigs(true);
+            ._getReservesConfigs(false);
 
         ReserveConfig memory expectedAssetConfig = ReserveConfig({
-            symbol: 'FRAX',
-            underlying: FRAX,
+            symbol: 'miMatic',
+            underlying: MIMATIC,
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             decimals: 18,
-            ltv: 7500,
-            liquidationThreshold: 8000,
-            liquidationBonus: 10500,
+            ltv: 0,
+            liquidationThreshold: 0,
+            liquidationBonus: 0,
             liquidationProtocolFee: 1000,
             reserveFactor: 1000,
-            usageAsCollateralEnabled: true,
+            usageAsCollateralEnabled: false,
             borrowingEnabled: true,
             interestRateStrategy: AaveV3Helpers
-                ._findReserveConfig(allConfigsAfter, 'fUSDT', false)
+                ._findReserveConfig(allConfigsAfter, 'USDt', false)
                 .interestRateStrategy,
             stableBorrowRateEnabled: false,
             isActive: true,
             isFrozen: false,
             isSiloed: false,
-            supplyCap: 50_000_000,
+            supplyCap: 10_000_000,
             borrowCap: 0,
-            debtCeiling: 2_000_000_00,
+            debtCeiling: 0,
             eModeCategory: 1
         });
 
@@ -91,12 +92,17 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
 
         AaveV3Helpers._validateReserveTokensImpls(
             vm,
-            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'FRAX', false),
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'miMatic', false),
             ReserveTokens({
                 aToken: listingSteward.ATOKEN_IMPL(),
                 stableDebtToken: listingSteward.SDTOKEN_IMPL(),
                 variableDebtToken: listingSteward.VDTOKEN_IMPL()
             })
+        );
+
+        AaveV3Helpers._validateAssetSourceOnOracle(
+            MIMATIC,
+            listingSteward.PRICE_FEED()
         );
 
         // impl should be same as USDC
@@ -110,11 +116,6 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
             })
         );
 
-        AaveV3Helpers._validateAssetSourceOnOracle(
-            FRAX,
-            listingSteward.PRICE_FEED_FRAX()
-        );
-
         _validatePoolActionsPostListing(allConfigsAfter);
 
         require(
@@ -126,127 +127,95 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
     function _validatePoolActionsPostListing(
         ReserveConfig[] memory allReservesConfigs
     ) internal {
-        address aFRAX = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'FRAX', false)
+        address aMIMATIC = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'miMatic', false)
             .aToken;
-        address vFRAX = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'FRAX', false)
+        address vMIMATIC = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'miMatic', false)
             .variableDebtToken;
-        address sFRAX = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'FRAX', false)
+        address sMIMATIC = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'miMatic', false)
             .stableDebtToken;
-        address vDAI = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'DAI', false)
-            .variableDebtToken;
+        address aDAI = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
+            .aToken;
 
         AaveV3Helpers._deposit(
             vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
             666 ether,
             true,
-            aFRAX
+            aMIMATIC
         );
 
-        AaveV3Helpers._borrow(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            DAI,
-            222 ether,
-            2,
-            vDAI
-        );
-
-        AaveV3Helpers._borrow(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
-            200 ether,
-            2,
-            vFRAX
-        );
-
-        // We check proper revert when going over liquidation threshold
+        // We check revert when trying to borrow (not enabled as collateral, so any mode works)
         try
             AaveV3Helpers._borrow(
                 vm,
-                FRAX_WHALE,
-                FRAX_WHALE,
-                FRAX,
-                200 ether,
-                2,
-                vFRAX
-            )
-        {
-            revert('_testProposal() : BORROW_NOT_REVERTING');
-        } catch Error(string memory revertReason) {
-            require(
-                keccak256(bytes(revertReason)) == keccak256(bytes('36')),
-                '_testProposal() : INVALID_VARIABLE_REVERT_MSG'
-            );
-            vm.stopPrank();
-        }
-
-        // We check revert when trying to borrow at stable
-        try
-            AaveV3Helpers._borrow(
-                vm,
-                FRAX_WHALE,
-                FRAX_WHALE,
-                FRAX,
+                MIMATIC_WHALE,
+                MIMATIC_WHALE,
+                MIMATIC,
                 10 ether,
                 1,
-                sFRAX
+                sMIMATIC
             )
         {
             revert('_testProposal() : BORROW_NOT_REVERTING');
         } catch Error(string memory revertReason) {
             require(
-                keccak256(bytes(revertReason)) == keccak256(bytes('31')),
+                keccak256(bytes(revertReason)) == keccak256(bytes('34')),
                 '_testProposal() : INVALID_VARIABLE_REVERT_MSG'
             );
             vm.stopPrank();
         }
 
         vm.startPrank(DAI_WHALE);
-        IERC20(DAI).transfer(FRAX_WHALE, 300 ether);
+        IERC20(DAIe).transfer(MIMATIC_WHALE, 666 ether);
         vm.stopPrank();
+
+        AaveV3Helpers._deposit(
+            vm,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            DAIe,
+            666 ether,
+            true,
+            aDAI
+        );
+
+        AaveV3Helpers._borrow(
+            vm,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
+            222 ether,
+            2,
+            vMIMATIC
+        );
 
         // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
         skip(1);
 
         AaveV3Helpers._repay(
             vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            DAI,
-            IERC20(DAI).balanceOf(FRAX_WHALE),
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
+            IERC20(MIMATIC).balanceOf(MIMATIC_WHALE),
             2,
-            vDAI,
-            true
-        );
-
-        AaveV3Helpers._repay(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
-            IERC20(FRAX).balanceOf(FRAX_WHALE),
-            2,
-            vFRAX,
+            vMIMATIC,
             true
         );
 
         AaveV3Helpers._withdraw(
             vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
+            MIMATIC_WHALE,
+            MIMATIC_WHALE,
+            MIMATIC,
             type(uint256).max,
-            aFRAX
+            aMIMATIC
         );
     }
 }
