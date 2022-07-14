@@ -5,10 +5,10 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Fantom} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3FantomFRAXListingSteward} from '../contracts/frax/AaveV3FantomFRAXListingSteward.sol';
+import {AaveV3FantomMAIListingSteward} from '../contracts/mai/AaveV3FantomMAIListingSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
-contract FRAXAaveV3FantomListingByGuardian is Test {
+contract MAIAaveV3FantomListingByGuardian is Test {
     using stdStorage for StdStorage;
 
     address public constant GUARDIAN =
@@ -17,10 +17,9 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
     address public constant CURRENT_ACL_SUPERADMIN =
         0x39CB97b105173b56b5a2b4b33AD25d6a50E6c949;
 
-    address public constant FRAX = 0xdc301622e621166BD8E82f2cA0A26c13Ad0BE355;
+    address public constant MAI = 0xfB98B335551a418cD0737375a2ea0ded62Ea213b;
 
-    address public constant FRAX_WHALE =
-        0x7a656B342E14F745e2B164890E88017e27AE7320;
+    address public constant MAI_WHALE = address(0); // There is a lot of burnt tokens
 
     address public constant DAI = 0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E;
 
@@ -32,13 +31,13 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
 
     function setUp() public {}
 
-    function testListingFRAX() public {
+    function testListing() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
             ._getReservesConfigs(false);
 
         vm.startPrank(GUARDIAN);
 
-        AaveV3FantomFRAXListingSteward listingSteward = new AaveV3FantomFRAXListingSteward();
+        AaveV3FantomMAIListingSteward listingSteward = new AaveV3FantomMAIListingSteward();
 
         IACLManager aclManager = AaveV3Fantom.ACL_MANAGER;
 
@@ -50,21 +49,21 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
         vm.stopPrank();
 
         ReserveConfig[] memory allConfigsAfter = AaveV3Helpers
-            ._getReservesConfigs(true);
+            ._getReservesConfigs(false);
 
         ReserveConfig memory expectedAssetConfig = ReserveConfig({
-            symbol: 'FRAX',
-            underlying: FRAX,
+            symbol: 'miMATIC',
+            underlying: MAI,
             aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             decimals: 18,
-            ltv: 7500,
-            liquidationThreshold: 8000,
-            liquidationBonus: 10500,
+            ltv: 0,
+            liquidationThreshold: 0,
+            liquidationBonus: 0,
             liquidationProtocolFee: 1000,
             reserveFactor: 1000,
-            usageAsCollateralEnabled: true,
+            usageAsCollateralEnabled: false,
             borrowingEnabled: true,
             interestRateStrategy: AaveV3Helpers
                 ._findReserveConfig(allConfigsAfter, 'fUSDT', false)
@@ -73,9 +72,9 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
             isActive: true,
             isFrozen: false,
             isSiloed: false,
-            supplyCap: 50_000_000,
+            supplyCap: 10_000_000,
             borrowCap: 0,
-            debtCeiling: 2_000_000_00,
+            debtCeiling: 0,
             eModeCategory: 1
         });
 
@@ -91,7 +90,7 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
 
         AaveV3Helpers._validateReserveTokensImpls(
             vm,
-            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'FRAX', false),
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'miMATIC', false),
             ReserveTokens({
                 aToken: listingSteward.ATOKEN_IMPL(),
                 stableDebtToken: listingSteward.SDTOKEN_IMPL(),
@@ -100,8 +99,8 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
         );
 
         AaveV3Helpers._validateAssetSourceOnOracle(
-            FRAX,
-            listingSteward.PRICE_FEED_FRAX()
+            MAI,
+            listingSteward.PRICE_FEED()
         );
 
         _validatePoolActionsPostListing(allConfigsAfter);
@@ -115,127 +114,98 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
     function _validatePoolActionsPostListing(
         ReserveConfig[] memory allReservesConfigs
     ) internal {
-        address aFRAX = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'FRAX', false)
+        address aMAI = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'miMATIC', false)
             .aToken;
-        address vFRAX = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'FRAX', false)
+        address vMAI = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'miMATIC', false)
             .variableDebtToken;
-        address sFRAX = AaveV3Helpers
-            ._findReserveConfig(allReservesConfigs, 'FRAX', false)
+        address sMAI = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'miMATIC', false)
             .stableDebtToken;
+        address aDAI = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'DAI', false)
+            .aToken;
         address vDAI = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'DAI', false)
             .variableDebtToken;
 
         AaveV3Helpers._deposit(
             vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
+            MAI_WHALE,
+            MAI_WHALE,
+            MAI,
             666 ether,
             true,
-            aFRAX
+            aMAI
         );
 
-        AaveV3Helpers._borrow(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            DAI,
-            222 ether,
-            2,
-            vDAI
-        );
-
-        AaveV3Helpers._borrow(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
-            200 ether,
-            2,
-            vFRAX
-        );
-
-        // We check proper revert when going over liquidation threshold
+        // We check revert when trying to borrow (not enabled as collateral, so any mode works)
         try
             AaveV3Helpers._borrow(
                 vm,
-                FRAX_WHALE,
-                FRAX_WHALE,
-                FRAX,
-                200 ether,
-                2,
-                vFRAX
-            )
-        {
-            revert('_testProposal() : BORROW_NOT_REVERTING');
-        } catch Error(string memory revertReason) {
-            require(
-                keccak256(bytes(revertReason)) == keccak256(bytes('36')),
-                '_testProposal() : INVALID_VARIABLE_REVERT_MSG'
-            );
-            vm.stopPrank();
-        }
-
-        // We check revert when trying to borrow at stable
-        try
-            AaveV3Helpers._borrow(
-                vm,
-                FRAX_WHALE,
-                FRAX_WHALE,
-                FRAX,
+                MAI_WHALE,
+                MAI_WHALE,
+                MAI,
                 10 ether,
                 1,
-                sFRAX
+                sMAI
             )
         {
             revert('_testProposal() : BORROW_NOT_REVERTING');
         } catch Error(string memory revertReason) {
             require(
-                keccak256(bytes(revertReason)) == keccak256(bytes('31')),
+                keccak256(bytes(revertReason)) == keccak256(bytes('34')),
                 '_testProposal() : INVALID_VARIABLE_REVERT_MSG'
             );
             vm.stopPrank();
         }
 
         vm.startPrank(DAI_WHALE);
-        IERC20(DAI).transfer(FRAX_WHALE, 300 ether);
+        IERC20(DAI).transfer(MAI_WHALE, 666 ether);
         vm.stopPrank();
+
+        AaveV3Helpers._deposit(
+            vm,
+            MAI_WHALE,
+            MAI_WHALE,
+            DAI,
+            666 ether,
+            true,
+            aDAI
+        );
+
+        AaveV3Helpers._borrow(
+            vm,
+            MAI_WHALE,
+            MAI_WHALE,
+            MAI,
+            222 ether,
+            2,
+            vMAI
+        );
 
         // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
         skip(1);
 
         AaveV3Helpers._repay(
             vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            DAI,
-            IERC20(DAI).balanceOf(FRAX_WHALE),
+            MAI_WHALE,
+            MAI_WHALE,
+            MAI,
+            IERC20(MAI).balanceOf(MAI_WHALE),
             2,
-            vDAI,
-            true
-        );
-
-        AaveV3Helpers._repay(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
-            IERC20(FRAX).balanceOf(FRAX_WHALE),
-            2,
-            vFRAX,
+            vMAI,
             true
         );
 
         AaveV3Helpers._withdraw(
             vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
+            MAI_WHALE,
+            MAI_WHALE,
+            MAI,
             type(uint256).max,
-            aFRAX
+            aMAI
         );
     }
 }
