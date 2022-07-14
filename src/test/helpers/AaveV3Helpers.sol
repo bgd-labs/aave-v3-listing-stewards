@@ -754,6 +754,16 @@ library AaveV3Helpers {
                 .implementation() == expectedImpls.aToken,
             '_validateReserveTokensImpls() : INVALID_ATOKEN_IMPL'
         );
+        require(
+            IInitializableAdminUpgradeabilityProxy(config.variableDebtToken)
+                .implementation() == expectedImpls.variableDebtToken,
+            '_validateReserveTokensImpls() : INVALID_ATOKEN_IMPL'
+        );
+        require(
+            IInitializableAdminUpgradeabilityProxy(config.stableDebtToken)
+                .implementation() == expectedImpls.stableDebtToken,
+            '_validateReserveTokensImpls() : INVALID_ATOKEN_IMPL'
+        );
         vm.stopPrank();
     }
 
