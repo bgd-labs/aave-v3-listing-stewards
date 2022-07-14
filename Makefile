@@ -6,7 +6,7 @@
 update:; forge update
 
 # Build & test
-build  :; forge build
+build  :; forge build --sizes
 
 # IMPORTANT It is highly probable that will be necessary to modify the --fork-block-number, depending on the test
 test   :; forge test -vvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16146270

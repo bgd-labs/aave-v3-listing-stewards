@@ -99,6 +99,17 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
             })
         );
 
+        // impl should be same as USDC
+        AaveV3Helpers._validateReserveTokensImpls(
+            vm,
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'USDC', false),
+            ReserveTokens({
+                aToken: listingSteward.ATOKEN_IMPL(),
+                stableDebtToken: listingSteward.SDTOKEN_IMPL(),
+                variableDebtToken: listingSteward.VDTOKEN_IMPL()
+            })
+        );
+
         AaveV3Helpers._validateAssetSourceOnOracle(
             FRAX,
             listingSteward.PRICE_FEED_FRAX()
