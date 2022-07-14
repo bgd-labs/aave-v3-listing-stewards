@@ -99,19 +99,19 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
             })
         );
 
-        // impl should be same as on DAI
+        // impl should be same as USDC
         AaveV3Helpers._validateReserveTokensImpls(
             vm,
-            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'DAI', false),
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'USDC', false),
             ReserveTokens({
                 aToken: listingSteward.ATOKEN_IMPL(),
                 stableDebtToken: listingSteward.SDTOKEN_IMPL(),
                 variableDebtToken: listingSteward.VDTOKEN_IMPL()
             })
         );
-        // strategy should be same as on DAI
+        // strategy should be same as USDC
         assertEq(
-            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'DAI', false).interestRateStrategy,
+            AaveV3Helpers._findReserveConfig(allConfigsAfter, 'USDC', false).interestRateStrategy,
             AaveV3Helpers._findReserveConfig(allConfigsAfter, 'FRAX', false).interestRateStrategy
         );
 
