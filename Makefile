@@ -15,7 +15,7 @@ test-frax-ava :; forge test -vvv --match-contract FRAXAaveV3AvaListingByGuardian
 test-frax-fantom :; forge test -vvv --match-contract FRAXAaveV3FantomListingByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 42587570
 test-mimatic-ava :; forge test -vvv --match-contract MIMATICAaveV3AvaListingByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 17188000
 test-mimatic-fantom :; forge test -vvv --match-contract MIMATICAaveV3FantomListingByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 42587570
-test-harmony-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV3HarmonyByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 29223600
+test-harmony-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV3HarmonyByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 29264480
 trace   :; forge test -vvvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16146270
 clean  :; forge clean
 snapshot :; forge snapshot
