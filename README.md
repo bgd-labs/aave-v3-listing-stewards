@@ -10,7 +10,7 @@ Helper smart contracts to list assets on Aave v3 or change configs. Designed to 
 | FRAX | asset-listing | Aave v3 Avalanche | [FRAX Steward](./src/contracts/frax/AaveV3AvaFRAXListingSteward.sol) | [Tests](./src/test/FRAXAaveV3AvaListingByGuardian.t.sol) |
 | FRAX | asset-listing | Aave v3 Fantom | [FRAX Steward](./src/contracts/frax/AaveV3FantomFRAXListingSteward.sol) | [Tests](./src/test/FRAXAaveV3FantomListingByGuardian.t.sol) |
 | sUSD | config-change | Aave v3 Optimism | [sUSD enable collateral Steward](./src/contracts/susd/AaveV3OptimismEnableCollateralSteward.sol) | [Tests](./src/test/sUSDAaveV3OptimismEnableAsCollateralByGuardian.t.sol) |
-| MIMATIC (MAI) | asset-listing | Aave v3 Avalanche | [MIMATIC Steward](./src/contracts/mimatic/AaveV3AvaMIMATICListingSteward.sol) | [Tests](./src/test/MIMATICAaveV3AvaListingByGuardian.t.sol) |
+| MAI | asset-listing | Aave v3 Avalanche | [MIMATIC Steward](./src/contracts/mimatic/AaveV3AvaMAIListingSteward.sol) | [Tests](./src/test/MAIAaveV3AvaListingByGuardian.t.sol) |
 | MIMATIC (MAI) | asset-listing | Aave v3 Fantom | [MIMATIC Steward](./src/contracts/mimatic/AaveV3FantomMIMATICListingSteward.sol) | [Tests](./src/test/MIMATICAaveV3FantomListingByGuardian.t.sol) |
 
 <br>
