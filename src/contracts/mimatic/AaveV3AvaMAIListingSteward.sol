@@ -5,14 +5,14 @@ import '../common/StewardBase.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
 
 /**
- * @dev This steward lists MIMATIC (MAI) as borrowing asset on Aave V3 Avalanche
+ * @dev This steward lists MAI as borrowing asset on Aave V3 Avalanche
  * - Parameter snapshot: https://snapshot.org/#/aave.eth/proposal/0x751b8fd1c77677643e419d327bdf749c29ccf0a0269e58ed2af0013843376051
  * The proposal is, as agreed with the proposer, more conservative than the approved parameters:
  * - Not enabled as collateral initially and thus not be isolated / have a debt ceiling.
  * - The eMode lq treshold will be 97.5, instead of the suggested 98% as the parameters are per emode not per asset
  * - Adding a 10M supply cap.
  */
-contract AaveV3AvaMIMATICListingSteward is StewardBase {
+contract AaveV3AvaMAIListingSteward is StewardBase {
     // **************************
     // Protocol's contracts
     // **************************
@@ -23,18 +23,18 @@ contract AaveV3AvaMIMATICListingSteward is StewardBase {
         0x929EC64c34a17401F460460D4B9390518E5B473e;
 
     // **************************
-    // New asset being listed (MIMATIC)
+    // New asset being listed (MAI)
     // **************************
 
     address public constant UNDERLYING =
-        0x3B55E45fD6bd7d4724F5c47E0d1bCaEdd059263e;
-    string public constant ATOKEN_NAME = 'Aave Avalanche MIMATIC';
-    string public constant ATOKEN_SYMBOL = 'aAvaMIMATIC';
+        0x5c49b268c9841AFF1Cc3B0a418ff5c3442eE3F3b;
+    string public constant ATOKEN_NAME = 'Aave Avalanche MAI';
+    string public constant ATOKEN_SYMBOL = 'aAvaMAI';
     string public constant VDTOKEN_NAME =
-        'Aave Avalanche Variable Debt MIMATIC';
-    string public constant VDTOKEN_SYMBOL = 'variableDebtAvaMIMATIC';
-    string public constant SDTOKEN_NAME = 'Aave Avalanche Stable Debt MIMATIC';
-    string public constant SDTOKEN_SYMBOL = 'stableDebtAvaMIMATIC';
+        'Aave Avalanche Variable Debt MAI';
+    string public constant VDTOKEN_SYMBOL = 'variableDebtAvaMAI';
+    string public constant SDTOKEN_NAME = 'Aave Avalanche Stable Debt MAI';
+    string public constant SDTOKEN_SYMBOL = 'stableDebtAvaMAI';
 
     address public constant PRICE_FEED =
         0x5D1F504211c17365CA66353442a74D4435A8b778;
@@ -74,7 +74,7 @@ contract AaveV3AvaMIMATICListingSteward is StewardBase {
         AaveV3Avalanche.ORACLE.setAssetSources(assets, sources);
 
         // ------------------------------------------------
-        // 2. Listing of MIMATIC, with all its configurations
+        // 2. Listing of MAI, with all its configurations
         // ------------------------------------------------
 
         ConfiguratorInputTypes.InitReserveInput[]
