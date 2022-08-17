@@ -22,6 +22,10 @@ contract MAIAaveV3AvaListingByGuardian is Test {
     address public constant MAI_WHALE =
         0xbE56bFF41AD57971DEDfBa69f88b1d085E349d47;
 
+    // It is not so simple to get the biggest holders of MAI on Avalanche, so we will
+    // send funds on setup
+    address public constant MAI_WHALE_2 = address(1);
+
     address public constant DAIe = 0xd586E7F844cEa2F87f50152665BCbc2C279D8d70;
 
     address public constant DAI_WHALE =
@@ -30,7 +34,9 @@ contract MAIAaveV3AvaListingByGuardian is Test {
     address public constant RATE_STRATEGY =
         0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
 
-    function setUp() public {}
+    function setUp() public {
+        deal(MAI, MAI_WHALE_2, 1000 ether);
+    }
 
     function testListing() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
@@ -59,12 +65,12 @@ contract MAIAaveV3AvaListingByGuardian is Test {
             variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
             decimals: 18,
-            ltv: 0,
-            liquidationThreshold: 0,
-            liquidationBonus: 0,
+            ltv: 7500,
+            liquidationThreshold: 8000,
+            liquidationBonus: 10500,
             liquidationProtocolFee: 1000,
             reserveFactor: 1000,
-            usageAsCollateralEnabled: false,
+            usageAsCollateralEnabled: true,
             borrowingEnabled: true,
             interestRateStrategy: AaveV3Helpers
                 ._findReserveConfig(allConfigsAfter, 'USDt', false)
@@ -73,9 +79,10 @@ contract MAIAaveV3AvaListingByGuardian is Test {
             isActive: true,
             isFrozen: false,
             isSiloed: false,
-            supplyCap: 10_000_000,
+            isBorrowableInIsolation: false,
+            supplyCap: 50_000_000,
             borrowCap: 0,
-            debtCeiling: 0,
+            debtCeiling: 2_000_000_00,
             eModeCategory: 1
         });
 
@@ -138,6 +145,9 @@ contract MAIAaveV3AvaListingByGuardian is Test {
         address aDAI = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
             .aToken;
+        address vDAI = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
+            .variableDebtToken;
 
         AaveV3Helpers._deposit(
             vm,
@@ -149,7 +159,38 @@ contract MAIAaveV3AvaListingByGuardian is Test {
             aMAI
         );
 
-        // We check revert when trying to borrow (not enabled as collateral, so any mode works)
+        AaveV3Helpers._borrow(
+            vm,
+            MAI_WHALE,
+            MAI_WHALE,
+            DAIe,
+            222 ether,
+            2,
+            vDAI
+        );
+
+        // We check proper revert when going over liquidation threshold
+        try
+            AaveV3Helpers._borrow(
+                vm,
+                MAI_WHALE,
+                MAI_WHALE,
+                DAIe,
+                300 ether,
+                2,
+                vDAI
+            )
+        {
+            revert('_testProposal() : BORROW_NOT_REVERTING');
+        } catch Error(string memory revertReason) {
+            require(
+                keccak256(bytes(revertReason)) == keccak256(bytes('36')),
+                '_testProposal() : INVALID_VARIABLE_REVERT_MSG'
+            );
+            vm.stopPrank();
+        }
+
+        // We check revert when trying to borrow MAI with isolated collateral active (MAI too)
         try
             AaveV3Helpers._borrow(
                 vm,
@@ -164,35 +205,15 @@ contract MAIAaveV3AvaListingByGuardian is Test {
             revert('_testProposal() : BORROW_NOT_REVERTING');
         } catch Error(string memory revertReason) {
             require(
-                keccak256(bytes(revertReason)) == keccak256(bytes('34')),
+                keccak256(bytes(revertReason)) == keccak256(bytes('60')),
                 '_testProposal() : INVALID_VARIABLE_REVERT_MSG'
             );
             vm.stopPrank();
         }
 
         vm.startPrank(DAI_WHALE);
-        IERC20(DAIe).transfer(MAI_WHALE, 666 ether);
+        IERC20(DAIe).transfer(MAI_WHALE, 1000 ether);
         vm.stopPrank();
-
-        AaveV3Helpers._deposit(
-            vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            DAIe,
-            666 ether,
-            true,
-            aDAI
-        );
-
-        AaveV3Helpers._borrow(
-            vm,
-            MAI_WHALE,
-            MAI_WHALE,
-            MAI,
-            222 ether,
-            2,
-            vMAI
-        );
 
         // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
         skip(1);
@@ -201,10 +222,10 @@ contract MAIAaveV3AvaListingByGuardian is Test {
             vm,
             MAI_WHALE,
             MAI_WHALE,
-            MAI,
-            IERC20(MAI).balanceOf(MAI_WHALE),
+            DAIe,
+            IERC20(DAIe).balanceOf(MAI_WHALE),
             2,
-            vMAI,
+            vDAI,
             true
         );
 
@@ -216,5 +237,57 @@ contract MAIAaveV3AvaListingByGuardian is Test {
             type(uint256).max,
             aMAI
         );
+
+        AaveV3Helpers._deposit(
+            vm,
+            MAI_WHALE,
+            MAI_WHALE,
+            DAIe,
+            300 ether,
+            true,
+            aDAI
+        );
+
+        // Another account needs to deposit to allow further testing of borrowing, without MAI collateral
+        AaveV3Helpers._deposit(
+            vm,
+            MAI_WHALE_2,
+            MAI_WHALE_2,
+            MAI,
+            300 ether,
+            true,
+            aMAI
+        );
+
+        AaveV3Helpers._borrow(
+            vm,
+            MAI_WHALE,
+            MAI_WHALE,
+            MAI,
+            200 ether,
+            2,
+            vMAI
+        );
+
+        // We check revert when trying to borrow MAI at stable rate
+        try
+            AaveV3Helpers._borrow(
+                vm,
+                MAI_WHALE,
+                MAI_WHALE,
+                MAI,
+                10 ether,
+                1,
+                sMAI
+            )
+        {
+            revert('_testProposal() : BORROW_NOT_REVERTING');
+        } catch Error(string memory revertReason) {
+            require(
+                keccak256(bytes(revertReason)) == keccak256(bytes('31')),
+                '_testProposal() : INVALID_VARIABLE_REVERT_MSG'
+            );
+            vm.stopPrank();
+        }
     }
 }

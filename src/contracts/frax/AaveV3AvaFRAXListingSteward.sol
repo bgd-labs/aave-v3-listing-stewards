@@ -5,7 +5,7 @@ import '../common/StewardBase.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
 
 /**
- * @dev This steward enables FRAX as collateral on AAVE V3 Avalanche
+ * @dev This steward enables FRAX as collateral in isolation and borrowing asset on AAVE V3 Avalanche
  * - Parameter snapshot: https://snapshot.org/#/aave.eth/proposal/0xa464894c571fecf559fab1f1a8daf514250955d5ed2bc21eb3a153d03bbe67db
  * Opposed to the suggested parameters this proposal will
  * - Lowering the suggested 50M ceiling to a 2M ceiling
@@ -46,6 +46,7 @@ contract AaveV3AvaFRAXListingSteward is StewardBase {
         0x52A1CeB68Ee6b7B5D13E0376A1E0E4423A8cE26e;
     address public constant RATE_STRATEGY =
         0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
+
     uint256 public constant LTV = 7500; // 75%
     uint256 public constant LIQ_THRESHOLD = 8000; // 80%
     uint256 public constant RESERVE_FACTOR = 1000; // 10%
@@ -54,7 +55,7 @@ contract AaveV3AvaFRAXListingSteward is StewardBase {
     uint256 public constant SUPPLY_CAP = 50_000_000; // 50m FRAX
     uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
 
-    uint256 public constant DEBT_CEILING = 2_000_000_00; // 2m
+    uint256 public constant DEBT_CEILING = 2_000_000_00; // 2m (USD denominated)
 
     uint8 public constant EMODE_CATEGORY = 1; // Stablecoins
 
@@ -112,8 +113,6 @@ contract AaveV3AvaFRAXListingSteward is StewardBase {
         configurator.setDebtCeiling(FRAX, DEBT_CEILING);
 
         configurator.setReserveBorrowing(FRAX, true);
-
-        configurator.setBorrowableInIsolation(FRAX, true);
 
         configurator.configureReserveAsCollateral(
             FRAX,

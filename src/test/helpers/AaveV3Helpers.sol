@@ -118,6 +118,7 @@ struct ReserveConfig {
     bool isActive;
     bool isFrozen;
     bool isSiloed;
+    bool isBorrowableInIsolation;
     uint256 supplyCap;
     uint256 borrowCap;
     uint256 debtCeiling;
@@ -307,6 +308,11 @@ interface IAavePool {
         external
         view
         returns (ReserveData memory);
+
+    function getConfiguration(address asset)
+        external
+        view
+        returns (ReserveConfigurationMap memory);
 }
 
 interface IInitializableAdminUpgradeabilityProxy {
@@ -414,6 +420,15 @@ library AaveV3Helpers {
             reserve.tokenAddress
         );
 
+        // TODO this should be improved, but at the moment is simpler to avoid importing the
+        // ReserveConfiguration library
+        localConfig.isBorrowableInIsolation =
+            (POOL.getConfiguration(reserve.tokenAddress).data &
+                ~uint256(
+                    0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFDFFFFFFFFFFFFFFF
+                )) !=
+            0;
+
         return localConfig;
     }
 
@@ -484,6 +499,10 @@ library AaveV3Helpers {
         console.log('Is active ', (config.isActive) ? 'Yes' : 'No');
         console.log('Is frozen ', (config.isFrozen) ? 'Yes' : 'No');
         console.log('Is siloed ', (config.isSiloed) ? 'Yes' : 'No');
+        console.log(
+            'Is borrowable in isolation ',
+            (config.isBorrowableInIsolation) ? 'Yes' : 'No'
+        );
         console.log('-----');
         console.log('-----');
     }
@@ -557,6 +576,11 @@ library AaveV3Helpers {
         require(
             config.isSiloed == expectedConfig.isSiloed,
             '_validateConfigsInAave: INVALID_IS_SILOED'
+        );
+        require(
+            config.isBorrowableInIsolation ==
+                expectedConfig.isBorrowableInIsolation,
+            '_validateConfigsInAave: INVALID_IS_BORROWABLE_IN_ISOLATION'
         );
         require(
             config.supplyCap == expectedConfig.supplyCap,

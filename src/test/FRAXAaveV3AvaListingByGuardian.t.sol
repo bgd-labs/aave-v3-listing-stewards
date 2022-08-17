@@ -22,6 +22,9 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
     address public constant FRAX_WHALE =
         0x6FD4b4c38ED80727EcD0d58505565F9e422c965f;
 
+    address public constant FRAX_WHALE_2 =
+        0x4cF0602a77a4243B768Ee28aA52994aD5dfdBe46;
+
     address public constant DAIe = 0xd586E7F844cEa2F87f50152665BCbc2C279D8d70;
 
     address public constant DAI_WHALE =
@@ -73,6 +76,7 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             isActive: true,
             isFrozen: false,
             isSiloed: false,
+            isBorrowableInIsolation: false,
             supplyCap: 50_000_000,
             borrowCap: 0,
             debtCeiling: 2_000_000_00,
@@ -135,6 +139,9 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
         address sFRAX = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'FRAX', false)
             .stableDebtToken;
+        address aDAI = AaveV3Helpers
+            ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
+            .aToken;
         address vDAI = AaveV3Helpers
             ._findReserveConfig(allReservesConfigs, 'DAI.e', false)
             .variableDebtToken;
@@ -159,26 +166,16 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             vDAI
         );
 
-        AaveV3Helpers._borrow(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
-            200 ether,
-            2,
-            vFRAX
-        );
-
         // We check proper revert when going over liquidation threshold
         try
             AaveV3Helpers._borrow(
                 vm,
                 FRAX_WHALE,
                 FRAX_WHALE,
-                FRAX,
-                200 ether,
+                DAIe,
+                300 ether,
                 2,
-                vFRAX
+                vDAI
             )
         {
             revert('_testProposal() : BORROW_NOT_REVERTING');
@@ -190,7 +187,86 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             vm.stopPrank();
         }
 
-        // We check revert when trying to borrow at stable
+        // We check revert when trying to borrow FRAX with isolated collateral active (FRAX too)
+        try
+            AaveV3Helpers._borrow(
+                vm,
+                FRAX_WHALE,
+                FRAX_WHALE,
+                FRAX,
+                10 ether,
+                1,
+                sFRAX
+            )
+        {
+            revert('_testProposal() : BORROW_NOT_REVERTING');
+        } catch Error(string memory revertReason) {
+            require(
+                keccak256(bytes(revertReason)) == keccak256(bytes('60')),
+                '_testProposal() : INVALID_VARIABLE_REVERT_MSG'
+            );
+            vm.stopPrank();
+        }
+
+        vm.startPrank(DAI_WHALE);
+        IERC20(DAIe).transfer(FRAX_WHALE, 1000 ether);
+        vm.stopPrank();
+
+        // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
+        skip(1);
+
+        AaveV3Helpers._repay(
+            vm,
+            FRAX_WHALE,
+            FRAX_WHALE,
+            DAIe,
+            IERC20(DAIe).balanceOf(FRAX_WHALE),
+            2,
+            vDAI,
+            true
+        );
+
+        AaveV3Helpers._withdraw(
+            vm,
+            FRAX_WHALE,
+            FRAX_WHALE,
+            FRAX,
+            type(uint256).max,
+            aFRAX
+        );
+
+        AaveV3Helpers._deposit(
+            vm,
+            FRAX_WHALE,
+            FRAX_WHALE,
+            DAIe,
+            300 ether,
+            true,
+            aDAI
+        );
+
+        // Another account needs to deposit to allow further testing of borrowing, without FRAX collateral
+        AaveV3Helpers._deposit(
+            vm,
+            FRAX_WHALE_2,
+            FRAX_WHALE_2,
+            FRAX,
+            300 ether,
+            true,
+            aFRAX
+        );
+
+        AaveV3Helpers._borrow(
+            vm,
+            FRAX_WHALE,
+            FRAX_WHALE,
+            FRAX,
+            200 ether,
+            2,
+            vFRAX
+        );
+
+        // We check revert when trying to borrow FRAX at stable rate
         try
             AaveV3Helpers._borrow(
                 vm,
@@ -210,43 +286,5 @@ contract FRAXAaveV3AvaListingByGuardian is Test {
             );
             vm.stopPrank();
         }
-
-        vm.startPrank(DAI_WHALE);
-        IERC20(DAIe).transfer(FRAX_WHALE, 300 ether);
-        vm.stopPrank();
-
-        // Not possible to borrow and repay when vdebt index doesn't changing, so moving 1s
-        skip(1);
-
-        AaveV3Helpers._repay(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            DAIe,
-            IERC20(DAIe).balanceOf(FRAX_WHALE),
-            2,
-            vDAI,
-            true
-        );
-
-        AaveV3Helpers._repay(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
-            IERC20(FRAX).balanceOf(FRAX_WHALE),
-            2,
-            vFRAX,
-            true
-        );
-
-        AaveV3Helpers._withdraw(
-            vm,
-            FRAX_WHALE,
-            FRAX_WHALE,
-            FRAX,
-            type(uint256).max,
-            aFRAX
-        );
     }
 }

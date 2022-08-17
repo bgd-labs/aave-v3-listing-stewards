@@ -67,6 +67,7 @@ contract sUSDAaveV3OptimismEnableAsCollateralByGuardian is Test {
             isActive: true,
             isFrozen: false,
             isSiloed: false,
+            isBorrowableInIsolation: false,
             supplyCap: 10_000_000,
             borrowCap: 0,
             debtCeiling: 0,
