@@ -35,9 +35,7 @@ contract MAIAaveV3AvaListingByGuardian is Test {
         0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
 
     function setUp() public {
-        vm.startPrank(MAI_WHALE);
-        IERC20(MAI).transfer(MAI_WHALE_2, 1000 ether);
-        vm.stopPrank();
+        deal(MAI, MAI_WHALE_2, 1000 ether);
     }
 
     function testListing() public {

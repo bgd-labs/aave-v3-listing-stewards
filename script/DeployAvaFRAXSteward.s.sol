@@ -8,8 +8,7 @@ import {AaveV3AvaFRAXListingSteward} from '../src/contracts/frax/AaveV3AvaFRAXLi
 contract DeployAvaFRAXSteward is Script {
     function run() external {
         vm.startBroadcast();
-        AaveV3AvaFRAXListingSteward fraxSteward = new AaveV3AvaFRAXListingSteward();
-        console.log('Frax Steward address', address(fraxSteward));
+        new AaveV3AvaFRAXListingSteward();
         vm.stopBroadcast();
     }
 }

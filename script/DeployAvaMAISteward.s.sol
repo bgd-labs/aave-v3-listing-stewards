@@ -8,8 +8,7 @@ import {AaveV3AvaMAIListingSteward} from '../src/contracts/mimatic/AaveV3AvaMAIL
 contract DeployAvaMAISteward is Script {
     function run() external {
         vm.startBroadcast();
-        AaveV3AvaMAIListingSteward maiSteward = new AaveV3AvaMAIListingSteward();
-        console.log('MAI Steward address', address(maiSteward));
+        new AaveV3AvaMAIListingSteward();
         vm.stopBroadcast();
     }
 }
