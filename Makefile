@@ -19,3 +19,9 @@ test-harmony-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV
 trace   :; forge test -vvvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16146270
 clean  :; forge clean
 snapshot :; forge snapshot
+
+# scripts
+deploy-ava-frax-steward :;  forge script script/DeployAvaFRAXSteward.s.sol:DeployAvaFRAXSteward --rpc-url ${ETH_RPC_URL} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
+verify-ava-frax-steward :;  forge script script/DeployAvaFRAXSteward.s.sol:DeployAvaFRAXSteward --rpc-url ${ETH_RPC_URL} --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
+deploy-ava-mai-steward :;  forge script script/DeployAvaMAISteward.s.sol:DeployAvaMAISteward --rpc-url ${ETH_RPC_URL} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
+verify-ava-mai-steward :;  forge script script/DeployAvaMAISteward.s.sol:DeployAvaMAISteward --rpc-url ${ETH_RPC_URL} --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv

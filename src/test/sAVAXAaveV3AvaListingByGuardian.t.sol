@@ -74,6 +74,7 @@ contract sAVAXAaveV3AvaListingByGuardian is Test {
             isActive: true,
             isFrozen: false,
             isSiloed: false,
+            isBorrowableInIsolation: false,
             supplyCap: 500_000,
             borrowCap: 0,
             debtCeiling: 0,

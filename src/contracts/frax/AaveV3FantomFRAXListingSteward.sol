@@ -113,8 +113,6 @@ contract AaveV3FantomFRAXListingSteward is StewardBase {
 
         configurator.setReserveBorrowing(FRAX, true);
 
-        configurator.setBorrowableInIsolation(FRAX, true);
-
         configurator.configureReserveAsCollateral(
             FRAX,
             LTV,

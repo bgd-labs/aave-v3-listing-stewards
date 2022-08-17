@@ -5,12 +5,13 @@ import '../common/StewardBase.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
 
 /**
- * @dev This steward lists MAI as borrowing asset on Aave V3 Avalanche
+ * @dev This steward lists MAI as borrowing asset and collateral in isolation on Aave V3 Avalanche
  * - Parameter snapshot: https://snapshot.org/#/aave.eth/proposal/0x751b8fd1c77677643e419d327bdf749c29ccf0a0269e58ed2af0013843376051
  * The proposal is, as agreed with the proposer, more conservative than the approved parameters:
- * - Not enabled as collateral initially and thus not be isolated / have a debt ceiling.
+ * - Enabled as collateral in isolation, with 2m debt ceiling
+ * - Adding a 50M supply cap
  * - The eMode lq treshold will be 97.5, instead of the suggested 98% as the parameters are per emode not per asset
- * - Adding a 10M supply cap.
+ * - The reserve factor will be 10% instead of 5% to be consistent with other stable coins
  */
 contract AaveV3AvaMAIListingSteward is StewardBase {
     // **************************
@@ -47,10 +48,16 @@ contract AaveV3AvaMAIListingSteward is StewardBase {
         0x52A1CeB68Ee6b7B5D13E0376A1E0E4423A8cE26e;
     address public constant RATE_STRATEGY =
         0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
+    
+    uint256 public constant LTV = 7500; // 75%
+    uint256 public constant LIQ_THRESHOLD = 8000; // 80%
     uint256 public constant RESERVE_FACTOR = 1000; // 10%
 
-    uint256 public constant SUPPLY_CAP = 10_000_000; // 10m
+    uint256 public constant LIQ_BONUS = 10500; // 5%
+    uint256 public constant SUPPLY_CAP = 50_000_000; // 50m MAI
     uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
+
+    uint256 public constant DEBT_CEILING = 2_000_000_00; // 2m (USD denominated)
 
     uint8 public constant EMODE_CATEGORY = 1; // Stablecoins
 
@@ -105,11 +112,20 @@ contract AaveV3AvaMAIListingSteward is StewardBase {
 
         configurator.setSupplyCap(UNDERLYING, SUPPLY_CAP);
 
+        configurator.setDebtCeiling(UNDERLYING, DEBT_CEILING);
+
         configurator.setReserveBorrowing(UNDERLYING, true);
 
-        configurator.setReserveFactor(UNDERLYING, RESERVE_FACTOR);
+        configurator.configureReserveAsCollateral(
+            UNDERLYING,
+            LTV,
+            LIQ_THRESHOLD,
+            LIQ_BONUS
+        );
 
         configurator.setAssetEModeCategory(UNDERLYING, EMODE_CATEGORY);
+
+        configurator.setReserveFactor(UNDERLYING, RESERVE_FACTOR);
 
         configurator.setLiquidationProtocolFee(UNDERLYING, LIQ_PROTOCOL_FEE);
     }

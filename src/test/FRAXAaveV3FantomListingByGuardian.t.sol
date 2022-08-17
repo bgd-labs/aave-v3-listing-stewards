@@ -73,6 +73,7 @@ contract FRAXAaveV3FantomListingByGuardian is Test {
             isActive: true,
             isFrozen: false,
             isSiloed: false,
+            isBorrowableInIsolation: false,
             supplyCap: 50_000_000,
             borrowCap: 0,
             debtCeiling: 2_000_000_00,
