@@ -42,7 +42,7 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
     address public constant SDTOKEN_IMPL =
         0x52A1CeB68Ee6b7B5D13E0376A1E0E4423A8cE26e;
     address public constant RATE_STRATEGY =
-        0xf4a0039F2d4a2EaD5216AbB6Ae4C4C3AA2dB9b82;
+        0x79a906e8c998d2fb5C5D66d23c4c5416Fe0168D6;
 
     uint256 public constant LTV = 7000; // 70%
     uint256 public constant LIQ_THRESHOLD = 7500; // 75%
