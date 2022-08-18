@@ -8,7 +8,7 @@ import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
  * @dev This steward enables BTCB as collateral on AAVE V3 Avalanche
  * - Parameter snapshot: https://snapshot.org/#/aave.eth/proposal/0xa947772b3880e77a14ffc22cb30cde36332fd2f779b3f345608d96e4c6e203c2
  * Opposed to the suggested parameters this proposal will
- * - 
+ * - add a supply cap of 1k BTC.b (45% of circulating supply)
  */
 contract AaveV3AvaBTCBListingSteward is StewardBase {
     // **************************
@@ -51,8 +51,6 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
     uint256 public constant LIQ_BONUS = 10650; // 6.5%
     uint256 public constant SUPPLY_CAP = 1_000; // 1k BTC.b (45% of current total supply)
     uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
-
-    // uint8 public constant EMODE_CATEGORY = 3; // Bitcoin ? does it make sense?
 
     function listAssetAddingOracle()
         external
@@ -105,8 +103,6 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
 
         configurator.setSupplyCap(BTCB, SUPPLY_CAP);
 
-        // configurator.setDebtCeiling(BTCB, DEBT_CEILING);
-
         configurator.setReserveBorrowing(BTCB, true);
 
         configurator.configureReserveAsCollateral(
@@ -115,8 +111,6 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
             LIQ_THRESHOLD,
             LIQ_BONUS
         );
-
-        // configurator.setAssetEModeCategory(BTCB, EMODE_CATEGORY);
 
         configurator.setReserveFactor(BTCB, RESERVE_FACTOR);
 
