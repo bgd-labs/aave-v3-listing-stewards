@@ -46,10 +46,12 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
 
     uint256 public constant LTV = 7000; // 70%
     uint256 public constant LIQ_THRESHOLD = 7500; // 75%
-    uint256 public constant RESERVE_FACTOR = 1000; // 10%
-
     uint256 public constant LIQ_BONUS = 10650; // 6.5%
-    uint256 public constant SUPPLY_CAP = 1_000; // 1k BTC.b (45% of current total supply)
+
+    uint256 public constant RESERVE_FACTOR = 2000; // 20%
+
+    uint256 public constant SUPPLY_CAP = 4_000;
+    uint256 public constant BORROW_CAP = 2_000; // 50%
     uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
 
     function listAssetAddingOracle()
@@ -102,6 +104,8 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
         configurator.initReserves(initReserveInputs);
 
         configurator.setSupplyCap(BTCB, SUPPLY_CAP);
+        
+        configurator.setBorrowCap(BTCB, BORROW_CAP);
 
         configurator.setReserveBorrowing(BTCB, true);
 
