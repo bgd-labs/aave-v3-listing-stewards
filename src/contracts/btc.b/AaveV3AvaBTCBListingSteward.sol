@@ -54,7 +54,7 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
     uint256 public constant BORROW_CAP = 1_450; // 50%
     uint256 public constant LIQ_PROTOCOL_FEE = 1000; // 10%
 
-    function listAssetAddingOracle()
+    function execute()
         external
         withRennounceOfAllAavePermissions(AaveV3Avalanche.ACL_MANAGER)
         withOwnershipBurning

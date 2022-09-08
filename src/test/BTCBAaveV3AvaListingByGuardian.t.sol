@@ -47,7 +47,7 @@ contract BTCBAaveV3AvaListingByGuardian is Test {
         aclManager.addAssetListingAdmin(address(listingSteward));
         aclManager.addRiskAdmin(address(listingSteward));
 
-        listingSteward.listAssetAddingOracle();
+        listingSteward.execute();
 
         vm.stopPrank();
 
@@ -65,7 +65,7 @@ contract BTCBAaveV3AvaListingByGuardian is Test {
             liquidationThreshold: 7500,
             liquidationBonus: 10650,
             liquidationProtocolFee: 1000,
-            reserveFactor: 1000,
+            reserveFactor: 2000,
             usageAsCollateralEnabled: true,
             borrowingEnabled: true,
             interestRateStrategy: AaveV3Helpers
@@ -76,8 +76,8 @@ contract BTCBAaveV3AvaListingByGuardian is Test {
             isFrozen: false,
             isSiloed: false,
             isBorrowableInIsolation: false,
-            supplyCap: 1_000,
-            borrowCap: 0,
+            supplyCap: 2_900,
+            borrowCap: 1_450,
             debtCeiling: 0,
             eModeCategory: 0
         });
