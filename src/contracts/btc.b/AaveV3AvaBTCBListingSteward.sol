@@ -6,9 +6,8 @@ import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
 
 /**
  * @dev This steward enables BTCB as collateral on AAVE V3 Avalanche
- * - Parameter snapshot: https://snapshot.org/#/aave.eth/proposal/0xa947772b3880e77a14ffc22cb30cde36332fd2f779b3f345608d96e4c6e203c2
- * Opposed to the suggested parameters this proposal will
- * - add a supply cap of 1k BTC.b (45% of circulating supply)
+ * - Snapshot: https://snapshot.org/#/aave.eth/proposal/0xa947772b3880e77a14ffc22cb30cde36332fd2f779b3f345608d96e4c6e203c2
+ * - Dicussion: https://governance.aave.com/t/arc-add-support-for-btc-b-native-bitcoin-bridged-to-avalanche/8872/4?u=sakulstra (contains conservative changes on top of snapshot)
  */
 contract AaveV3AvaBTCBListingSteward is StewardBase {
     // **************************
