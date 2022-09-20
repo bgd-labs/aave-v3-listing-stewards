@@ -20,7 +20,7 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
         0x929EC64c34a17401F460460D4B9390518E5B473e;
 
     // **************************
-    // New asset being listed (FRAX)
+    // New asset being listed (BTC.b)
     // **************************
 
     address public constant BTCB = 0x152b9d0FdC40C096757F570A51E494bd4b943E50;
