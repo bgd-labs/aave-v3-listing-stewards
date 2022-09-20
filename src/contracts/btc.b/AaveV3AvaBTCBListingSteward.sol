@@ -72,8 +72,8 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
 
         AaveV3Avalanche.ORACLE.setAssetSources(assets, sources);
 
-        // ------------------------------------------------Any
-        // 2. Listing of FRAX, with all its configurations
+        // ------------------------------------------------
+        // 2. Listing of BTC.b, with all its configurations
         // ------------------------------------------------
 
         ConfiguratorInputTypes.InitReserveInput[]
