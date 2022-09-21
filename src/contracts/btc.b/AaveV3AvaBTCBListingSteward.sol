@@ -2,12 +2,12 @@
 pragma solidity ^0.8.10;
 
 import '../common/StewardBase.sol';
-import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
+import {AaveV3Avalanche} from 'aave-address-book/AaveV3Avalanche.sol';
 
 /**
  * @dev This steward enables BTCB as collateral on AAVE V3 Avalanche
  * - Snapshot: https://snapshot.org/#/aave.eth/proposal/0xa947772b3880e77a14ffc22cb30cde36332fd2f779b3f345608d96e4c6e203c2
- * - Dicussion: https://governance.aave.com/t/arc-add-support-for-btc-b-native-bitcoin-bridged-to-avalanche/8872/4?u=sakulstra (contains conservative changes on top of snapshot)
+ * - Dicussion: https://governance.aave.com/t/arc-add-support-for-btc-b-native-bitcoin-bridged-to-avalanche/8872/4 (contains conservative changes on top of snapshot)
  */
 contract AaveV3AvaBTCBListingSteward is StewardBase {
     // **************************
@@ -20,7 +20,7 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
         0x929EC64c34a17401F460460D4B9390518E5B473e;
 
     // **************************
-    // New asset being listed (FRAX)
+    // New asset being listed (BTC.b)
     // **************************
 
     address public constant BTCB = 0x152b9d0FdC40C096757F570A51E494bd4b943E50;
@@ -72,8 +72,8 @@ contract AaveV3AvaBTCBListingSteward is StewardBase {
 
         AaveV3Avalanche.ORACLE.setAssetSources(assets, sources);
 
-        // ------------------------------------------------Any
-        // 2. Listing of FRAX, with all its configurations
+        // ------------------------------------------------
+        // 2. Listing of BTC.b, with all its configurations
         // ------------------------------------------------
 
         ConfiguratorInputTypes.InitReserveInput[]
