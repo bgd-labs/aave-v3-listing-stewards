@@ -5,7 +5,7 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3AvaRiskParameterUpdate} from '../contracts/gauntlet/AaveV3AvaRiskParameterUpdate.sol';
+import {AaveV3AvaRiskParameterUpdate, Updates} from '../contracts/gauntlet/AaveV3AvaRiskParameterUpdate.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
 contract RiskParameterUpdateByGuardian is Test {
@@ -41,44 +41,28 @@ contract RiskParameterUpdateByGuardian is Test {
         ReserveConfig[] memory allConfigsAfter = AaveV3Helpers
             ._getReservesConfigs(false);
 
-        // ReserveConfig memory expectedAssetConfig = ReserveConfig({
-        //     symbol: 'BTC.b',
-        //     underlying: BTCB,
-        //     aToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
-        //     variableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
-        //     stableDebtToken: address(0), // Mock, as they don't get validated, because of the "dynamic" deployment on proposal execution
-        //     decimals: 8,
-        //     ltv: 7000,
-        //     liquidationThreshold: 7500,
-        //     liquidationBonus: 10650,
-        //     liquidationProtocolFee: 1000,
-        //     reserveFactor: 2000,
-        //     usageAsCollateralEnabled: true,
-        //     borrowingEnabled: true,
-        //     interestRateStrategy: AaveV3Helpers
-        //         ._findReserveConfig(allConfigsAfter, 'WBTC.e', false)
-        //         .interestRateStrategy,
-        //     stableBorrowRateEnabled: false,
-        //     isActive: true,
-        //     isFrozen: false,
-        //     isSiloed: false,
-        //     isBorrowableInIsolation: false,
-        //     supplyCap: 2_900,
-        //     borrowCap: 1_450,
-        //     debtCeiling: 0,
-        //     eModeCategory: 0
-        // });
+        Updates memory updates = updateSteward._getUpdates();
+        string[] memory symbols = new string[](updates.parameters.length);
 
-        // AaveV3Helpers._validateReserveConfig(
-        //     expectedAssetConfig,
-        //     allConfigsAfter
-        // );
+        for (uint256 i = 0; i < updates.parameters.length; i++) {
+            symbols[i] = updates.parameters[i].symbol;
 
-        // AaveV3Helpers._noReservesConfigsChangesApartFrom(
-        //     allConfigsBefore,
-        //     allConfigsAfter,
-        //     'BTC.b'
-        // );
+            ReserveConfig memory expectedConfig = AaveV3Helpers._findReserveConfig(allConfigsBefore, symbols[i], false);
+            expectedConfig.ltv = updates.parameters[i].ltv;
+            expectedConfig.liquidationThreshold = updates.parameters[i].liquidationThreshold;
+            expectedConfig.liquidationBonus = updates.parameters[i].liquidationBonus;
+
+            AaveV3Helpers._validateReserveConfig(
+                expectedConfig,
+                allConfigsAfter
+            );
+        }
+
+        AaveV3Helpers._noReservesConfigsChangesApartFromMany(
+            allConfigsBefore,
+            allConfigsAfter,
+            symbols
+        );
 
         require(
             updateSteward.owner() == address(0),

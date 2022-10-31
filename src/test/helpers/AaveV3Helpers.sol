@@ -699,6 +699,35 @@ library AaveV3Helpers {
         }
     }
 
+    function _noReservesConfigsChangesApartFromMany(
+        ReserveConfig[] memory allConfigsBefore,
+        ReserveConfig[] memory allConfigsAfter,
+        string[] memory assetChangedSymbols
+    ) internal pure {
+        require(
+            allConfigsBefore.length == allConfigsAfter.length,
+            'A_UNEXPECTED_NEW_LISTING_HAPPENED'
+        );
+
+        for (uint256 i = 0; i < allConfigsBefore.length; i++) {
+            bool skip = false;
+            for (uint256 j = 0; j < assetChangedSymbols.length; j++) {
+                if (
+                    keccak256(abi.encodePacked(assetChangedSymbols[j])) ==
+                    keccak256(abi.encodePacked(allConfigsBefore[i].symbol))
+                ) {
+                    skip = true;
+                }
+            }
+            if (!skip) {
+                _requireNoChangeInConfigs(
+                    allConfigsBefore[i],
+                    allConfigsAfter[i]
+                );
+            }
+        }
+    }
+
     function _requireNoChangeInConfigs(
         ReserveConfig memory config1,
         ReserveConfig memory config2
