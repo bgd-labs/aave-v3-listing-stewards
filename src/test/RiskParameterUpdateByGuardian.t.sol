@@ -31,7 +31,6 @@ contract RiskParameterUpdateByGuardian is Test {
 
         IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 
-        aclManager.addAssetListingAdmin(address(updateSteward));
         aclManager.addRiskAdmin(address(updateSteward));
 
         updateSteward.execute();
