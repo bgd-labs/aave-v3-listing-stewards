@@ -14,11 +14,8 @@ contract RiskParameterUpdateByGuardian is Test {
     address public constant GUARDIAN_AVALANCHE =
         0xa35b76E4935449E33C56aB24b23fcd3246f13470;
 
-    address public constant CURRENT_ACL_SUPERADMIN =
-        0x4365F8e70CF38C6cA67DE41448508F2da8825500;
-
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("avalanche"), 18805477);
+        vm.createSelectFork(vm.rpcUrl("avalanche"), 21789453);
     }
 
     function testRiskParameterUpdate() public {
