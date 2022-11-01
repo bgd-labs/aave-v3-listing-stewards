@@ -5,7 +5,7 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3AvaRiskParameterUpdate, Updates} from '../contracts/gauntlet/AaveV3AvaRiskParameterUpdate.sol';
+import {AaveV3AvaRiskParameterUpdate, ParameterSet, NUM_UPDATES} from '../contracts/gauntlet/AaveV3AvaRiskParameterUpdate.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
 contract RiskParameterUpdateByGuardian is Test {
@@ -37,16 +37,16 @@ contract RiskParameterUpdateByGuardian is Test {
         ReserveConfig[] memory allConfigsAfter = AaveV3Helpers
             ._getReservesConfigs(false);
 
-        Updates memory updates = updateSteward._getUpdates();
-        string[] memory symbols = new string[](updates.parameters.length);
+        ParameterSet[NUM_UPDATES] memory parameters = updateSteward._getUpdates();
+        string[] memory symbols = new string[](parameters.length);
 
-        for (uint256 i = 0; i < updates.parameters.length; i++) {
-            symbols[i] = updates.parameters[i].symbol;
+        for (uint256 i = 0; i < parameters.length; i++) {
+            symbols[i] = parameters[i].symbol;
 
             ReserveConfig memory expectedConfig = AaveV3Helpers._findReserveConfig(allConfigsBefore, symbols[i], false);
-            expectedConfig.ltv = updates.parameters[i].ltv;
-            expectedConfig.liquidationThreshold = updates.parameters[i].liquidationThreshold;
-            expectedConfig.liquidationBonus = updates.parameters[i].liquidationBonus;
+            expectedConfig.ltv = parameters[i].ltv;
+            expectedConfig.liquidationThreshold = parameters[i].liquidationThreshold;
+            expectedConfig.liquidationBonus = parameters[i].liquidationBonus;
 
             AaveV3Helpers._validateReserveConfig(
                 expectedConfig,
