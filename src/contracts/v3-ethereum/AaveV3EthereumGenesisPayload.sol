@@ -47,6 +47,7 @@ contract AaveV3EthereumGenesisPayload {
     address public constant SDTOKEN_IMPL = address(0); // TODO
 
     function execute() external {
+        POOL_CONFIGURATOR.setPoolPause(false);
         _listWETH();
     }
 
