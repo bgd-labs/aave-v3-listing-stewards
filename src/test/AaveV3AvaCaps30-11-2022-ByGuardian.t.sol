@@ -36,14 +36,14 @@ contract AaveV3AvaCapsByGuardian is Test {
 
         vm.startPrank(GUARDIAN_AVALANCHE);
 
-        AaveV3AvaCapsSteward listingSteward = new AaveV3AvaCapsSteward();
+        AaveV3AvaCapsSteward capsSteward = new AaveV3AvaCapsSteward();
 
         IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 
-        aclManager.addAssetListingAdmin(address(listingSteward));
-        aclManager.addRiskAdmin(address(listingSteward));
+        aclManager.addAssetListingAdmin(address(capsSteward));
+        aclManager.addRiskAdmin(address(capsSteward));
 
-        listingSteward.execute();
+        capsSteward.execute();
 
         vm.stopPrank();
 
@@ -95,9 +95,6 @@ contract AaveV3AvaCapsByGuardian is Test {
         WBTCConfig.supplyCap = WBTCe_CAP;
         AaveV3Helpers._validateReserveConfig(WBTCConfig, allConfigsAfter);
 
-        require(
-            listingSteward.owner() == address(0),
-            'INVALID_OWNER_POST_LISTING'
-        );
+        require(capsSteward.owner() == address(0), 'INVALID_OWNER_POST_CAPS');
     }
 }
