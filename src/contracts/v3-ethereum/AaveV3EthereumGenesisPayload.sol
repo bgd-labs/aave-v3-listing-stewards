@@ -25,27 +25,12 @@ contract AaveV3EthereumGenesisPayload is GenericV3ListingEngine {
         )
     {}
 
-    function execute() external {
-        POOL_CONFIGURATOR.setPoolPause(false);
+    function getAllConfigs() public override returns (Listing[] memory) {
+        Listing[] memory listings = new Listing[](2);
 
-        super._listAssets(_getAllConfigs());
-    }
-
-    // TODO add string.concat
-    function _getAllConfigs()
-        internal
-        override
-        returns (ListingConfig[] memory)
-    {
-        ListingConfig[] memory configs = new ListingConfig[](2);
-        configs[0] = ListingConfig({
+        listings[0] = Listing({
             asset: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
-            aTokenName: 'Aave Ethereum WETH',
-            aTokenSymbol: 'aEthWETH',
-            vTokenName: 'Aave Ethereum Variable Debt WETH',
-            vTokenSymbol: 'variableDebtEthWETH',
-            sTokenName: 'Aave Ethereum Stable Debt WETH',
-            sTokenSymbol: 'stableDebtEthWETH',
+            assetSymbol: 'WETH',
             priceFeed: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
             rateStrategy: address(0), // TODO
             enabledToBorrow: true,
@@ -60,14 +45,9 @@ contract AaveV3EthereumGenesisPayload is GenericV3ListingEngine {
             debtCeiling: 0,
             liqProtocolFee: 10_00
         });
-        configs[1] = ListingConfig({
+        listings[1] = Listing({
             asset: address(0), // TODO
-            aTokenName: 'Aave Ethereum USDC',
-            aTokenSymbol: 'aEthUSDC',
-            vTokenName: 'Aave Ethereum Variable Debt USDC',
-            vTokenSymbol: 'variableDebtEthUSDC',
-            sTokenName: 'Aave Ethereum Stable Debt USDC',
-            sTokenSymbol: 'stableDebtEthUSDC',
+            assetSymbol: 'USDC',
             priceFeed: address(0), // TODO
             rateStrategy: address(0), // TODO
             enabledToBorrow: true,
@@ -83,10 +63,12 @@ contract AaveV3EthereumGenesisPayload is GenericV3ListingEngine {
             liqProtocolFee: 0 // TODO
         });
 
-        return configs;
+        return listings;
     }
 
-    function getAllConfigs() external returns (ListingConfig[] memory) {
-        return _getAllConfigs();
+    function execute() external {
+        POOL_CONFIGURATOR.setPoolPause(false);
+
+        super._listAssets();
     }
 }

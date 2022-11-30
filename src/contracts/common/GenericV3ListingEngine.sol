@@ -13,14 +13,9 @@ import {IPoolConfigurator, IAaveOracle, ConfiguratorInputTypes} from 'aave-addre
  * @author BGD Labs
  */
 abstract contract GenericV3ListingEngine {
-    struct ListingConfig {
+    struct Listing {
         address asset;
-        string aTokenName;
-        string aTokenSymbol;
-        string vTokenName;
-        string vTokenSymbol;
-        string sTokenName;
-        string sTokenSymbol;
+        string assetSymbol;
         address priceFeed;
         address rateStrategy; // Mandatory, no matter if enabled for borrowing or not
         bool enabledToBorrow;
@@ -34,6 +29,40 @@ abstract contract GenericV3ListingEngine {
         uint256 borrowCap; // Always configured, no matter if enabled for borrowing or not
         uint256 debtCeiling; // Only considered if liqThreshold > 0
         uint256 liqProtocolFee; // Only considered if liqThreshold > 0
+    }
+
+    struct AssetsConfig {
+        address[] ids;
+        Basic[] basics;
+        Borrow[] borrows;
+        Collateral[] collaterals;
+        Caps[] caps;
+    }
+
+    struct Basic {
+        string assetSymbol;
+        address priceFeed;
+        address rateStrategy; // Mandatory, no matter if enabled for borrowing or not
+    }
+
+    struct Borrow {
+        bool enabledToBorrow;
+        bool stableRateModeEnabled; // Only considered is enabledToBorrow == true
+        bool borrowableInIsolation; // Only considered is enableToBorrow == true
+        uint256 reserveFactor; // Only considered if enabledToBorrow == true
+    }
+
+    struct Collateral {
+        uint256 LTV; // Only considered if liqThreshold > 0
+        uint256 liqThreshold; // If `0`, the asset will not be enabled as collateral
+        uint256 liqBonus; // Only considered if liqThreshold > 0
+        uint256 debtCeiling; // Only considered if liqThreshold > 0
+        uint256 liqProtocolFee; // Only considered if liqThreshold > 0
+    }
+
+    struct Caps {
+        uint256 supplyCap; // Always configured
+        uint256 borrowCap; // Always configured, no matter if enabled for borrowing or not
     }
 
     IPoolConfigurator public immutable POOL_CONFIGURATOR;
@@ -62,140 +91,207 @@ abstract contract GenericV3ListingEngine {
         COLLECTOR = collector;
     }
 
-    function _listAssets(ListingConfig[] memory configs) internal {
-        require(configs.length != 0, 'AT_LEAST_ONE_ASSET_REQUIRED');
+    function _listAssets() internal {
+        Listing[] memory listings = getAllConfigs();
 
-        _setPriceFeeds(configs);
+        require(listings.length != 0, 'AT_LEAST_ONE_ASSET_REQUIRED');
 
-        _initAssets(configs);
+        AssetsConfig memory configs = _repackListing(listings);
 
-        _configureCaps(configs);
+        _setPriceFeeds(configs.ids, configs.basics);
 
-        _configBorrowSide(configs);
+        _initAssets(configs.ids, configs.basics);
 
-        _configCollateralSide(configs);
+        _configureCaps(configs.ids, configs.caps);
+
+        _configBorrowSide(configs.ids, configs.borrows);
+
+        _configCollateralSide(configs.ids, configs.collaterals);
     }
 
-    function _setPriceFeeds(ListingConfig[] memory configs) internal {
-        address[] memory assets = new address[](configs.length);
-        address[] memory sources = new address[](configs.length);
+    function _setPriceFeeds(address[] memory ids, Basic[] memory basics)
+        internal
+    {
+        address[] memory assets = new address[](ids.length);
+        address[] memory sources = new address[](ids.length);
 
-        for (uint256 i = 0; i < configs.length; i++) {
+        for (uint256 i = 0; i < ids.length; i++) {
             require(
-                configs[i].priceFeed != address(0),
+                basics[i].priceFeed != address(0),
                 'PRICE_FEED_ALWAYS_REQUIRED'
             );
-            assets[i] = configs[i].asset;
-            sources[i] = configs[i].priceFeed;
+            assets[i] = ids[i];
+            sources[i] = basics[i].priceFeed;
         }
 
         ORACLE.setAssetSources(assets, sources);
     }
 
-    function _initAssets(ListingConfig[] memory configs) internal {
+    /// @dev mandatory configurations for any asset getting listed, including oracle config and basic init
+    function _initAssets(address[] memory ids, Basic[] memory basics) internal {
         ConfiguratorInputTypes.InitReserveInput[]
             memory initReserveInputs = new ConfiguratorInputTypes.InitReserveInput[](
-                configs.length
+                ids.length
             );
-        for (uint256 i = 0; i < configs.length; i++) {
+        for (uint256 i = 0; i < ids.length; i++) {
             initReserveInputs[i] = ConfiguratorInputTypes.InitReserveInput({
                 aTokenImpl: ATOKEN_IMPL,
                 stableDebtTokenImpl: STOKEN_IMPL,
                 variableDebtTokenImpl: VTOKEN_IMPL,
-                underlyingAssetDecimals: IERC20(configs[i].asset).decimals(),
-                interestRateStrategyAddress: configs[i].rateStrategy,
-                underlyingAsset: configs[i].asset,
+                underlyingAssetDecimals: IERC20(ids[i]).decimals(),
+                interestRateStrategyAddress: basics[i].rateStrategy,
+                underlyingAsset: ids[i],
                 treasury: COLLECTOR,
                 incentivesController: REWARDS_CONTROLLER,
-                aTokenName: configs[i].aTokenName,
-                aTokenSymbol: configs[i].aTokenSymbol,
-                variableDebtTokenName: configs[i].vTokenName,
-                variableDebtTokenSymbol: configs[i].vTokenSymbol,
-                stableDebtTokenName: configs[i].sTokenName,
-                stableDebtTokenSymbol: configs[i].sTokenSymbol,
+                aTokenName: string(
+                    abi.encodePacked('Aave Ethereum ', basics[i].assetSymbol)
+                ), // TODO change to string.concat
+                aTokenSymbol: string(
+                    abi.encodePacked('aEth', basics[i].assetSymbol)
+                ),
+                variableDebtTokenName: string(
+                    abi.encodePacked(
+                        'Aave Ethereum Variable Debt ',
+                        basics[i].assetSymbol
+                    )
+                ),
+                variableDebtTokenSymbol: string(
+                    abi.encodePacked('variableDebtEth', basics[i].assetSymbol)
+                ),
+                stableDebtTokenName: string(
+                    abi.encodePacked(
+                        'Aave Ethereum Stable Debt ',
+                        basics[i].assetSymbol
+                    )
+                ),
+                stableDebtTokenSymbol: string(
+                    abi.encodePacked('stableDebtEth', basics[i].assetSymbol)
+                ),
                 params: bytes('')
             });
         }
         POOL_CONFIGURATOR.initReserves(initReserveInputs);
     }
 
-    function _configureCaps(ListingConfig[] memory configs) internal {
-        for (uint256 i = 0; i < configs.length; i++) {
-            if (configs[i].supplyCap != 0) {
-                POOL_CONFIGURATOR.setSupplyCap(
-                    configs[i].asset,
-                    configs[i].supplyCap
-                );
+    function _configureCaps(address[] memory ids, Caps[] memory caps) internal {
+        for (uint256 i = 0; i < ids.length; i++) {
+            if (caps[i].supplyCap != 0) {
+                POOL_CONFIGURATOR.setSupplyCap(ids[i], caps[i].supplyCap);
             }
 
-            if (configs[i].borrowCap != 0) {
-                POOL_CONFIGURATOR.setBorrowCap(
-                    configs[i].asset,
-                    configs[i].borrowCap
-                );
+            if (caps[i].borrowCap != 0) {
+                POOL_CONFIGURATOR.setBorrowCap(ids[i], caps[i].borrowCap);
             }
         }
     }
 
-    function _configCollateralSide(ListingConfig[] memory configs) internal {
-        for (uint256 i = 0; i < configs.length; i++) {
-            if (configs[i].liqThreshold != 0) {
-                POOL_CONFIGURATOR.configureReserveAsCollateral(
-                    configs[i].asset,
-                    configs[i].LTV,
-                    configs[i].liqThreshold,
-                    10000 + configs[i].liqBonus // Opinionated, seems more correct to define liqBonus as 5_00 for 5%
-                );
-
-                POOL_CONFIGURATOR.setLiquidationProtocolFee(
-                    configs[i].asset,
-                    configs[i].liqProtocolFee
-                );
-
-                if (configs[i].debtCeiling != 0) {
-                    POOL_CONFIGURATOR.setDebtCeiling(
-                        configs[i].asset,
-                        configs[i].debtCeiling
-                    );
-                }
-            }
-        }
-    }
-
-    function _configBorrowSide(ListingConfig[] memory configs) internal {
-        for (uint256 i = 0; i < configs.length; i++) {
-            if (configs[i].enabledToBorrow) {
-                POOL_CONFIGURATOR.setReserveBorrowing(configs[i].asset, true);
+    function _configBorrowSide(address[] memory ids, Borrow[] memory borrows)
+        internal
+    {
+        for (uint256 i = 0; i < ids.length; i++) {
+            if (borrows[i].enabledToBorrow) {
+                POOL_CONFIGURATOR.setReserveBorrowing(ids[i], true);
 
                 // If enabled to borrow, the reserve factor should always be configured
                 require(
-                    configs[i].reserveFactor > 0,
+                    borrows[i].reserveFactor > 0,
                     'RESERVE_FACTOR_REQUIRED'
                 );
                 POOL_CONFIGURATOR.setReserveFactor(
-                    configs[i].asset,
-                    configs[i].reserveFactor
+                    ids[i],
+                    borrows[i].reserveFactor
                 );
 
                 // TODO add flashloanable
 
-                if (configs[i].stableRateModeEnabled) {
+                if (borrows[i].stableRateModeEnabled) {
                     POOL_CONFIGURATOR.setReserveStableRateBorrowing(
-                        configs[i].asset,
+                        ids[i],
                         true
                     );
                 }
 
-                if (configs[i].borrowableInIsolation) {
-                    POOL_CONFIGURATOR.setBorrowableInIsolation(
-                        configs[i].asset,
-                        true
+                if (borrows[i].borrowableInIsolation) {
+                    POOL_CONFIGURATOR.setBorrowableInIsolation(ids[i], true);
+                }
+            }
+        }
+    }
+
+    function _configCollateralSide(
+        address[] memory ids,
+        Collateral[] memory collaterals
+    ) internal {
+        for (uint256 i = 0; i < ids.length; i++) {
+            if (collaterals[i].liqThreshold != 0) {
+                POOL_CONFIGURATOR.configureReserveAsCollateral(
+                    ids[i],
+                    collaterals[i].LTV,
+                    collaterals[i].liqThreshold,
+                    10000 + collaterals[i].liqBonus // Opinionated, seems more correct to define liqBonus as 5_00 for 5%
+                );
+
+                POOL_CONFIGURATOR.setLiquidationProtocolFee(
+                    ids[i],
+                    collaterals[i].liqProtocolFee
+                );
+
+                if (collaterals[i].debtCeiling != 0) {
+                    POOL_CONFIGURATOR.setDebtCeiling(
+                        ids[i],
+                        collaterals[i].debtCeiling
                     );
                 }
             }
         }
     }
 
+    function _repackListing(Listing[] memory listings)
+        internal
+        returns (AssetsConfig memory)
+    {
+        address[] memory ids = new address[](listings.length);
+        Basic[] memory basics = new Basic[](listings.length);
+        Borrow[] memory borrows = new Borrow[](listings.length);
+        Collateral[] memory collaterals = new Collateral[](listings.length);
+        Caps[] memory caps = new Caps[](listings.length);
+
+        for (uint256 i = 0; i < listings.length; i++) {
+            ids[i] = listings[i].asset;
+            basics[i] = Basic({
+                assetSymbol: listings[i].assetSymbol,
+                priceFeed: listings[i].priceFeed,
+                rateStrategy: listings[i].rateStrategy
+            });
+            borrows[i] = Borrow({
+                enabledToBorrow: listings[i].enabledToBorrow,
+                stableRateModeEnabled: listings[i].stableRateModeEnabled,
+                borrowableInIsolation: listings[i].borrowableInIsolation,
+                reserveFactor: listings[i].reserveFactor
+            });
+            collaterals[i] = Collateral({
+                LTV: listings[i].LTV,
+                liqThreshold: listings[i].liqThreshold,
+                liqBonus: listings[i].liqBonus,
+                debtCeiling: listings[i].debtCeiling,
+                liqProtocolFee: listings[i].liqProtocolFee
+            });
+            caps[i] = Caps({
+                supplyCap: listings[i].supplyCap,
+                borrowCap: listings[i].borrowCap
+            });
+        }
+
+        return
+            AssetsConfig({
+                ids: ids,
+                basics: basics,
+                borrows: borrows,
+                collaterals: collaterals,
+                caps: caps
+            });
+    }
+
     /// @dev Children contract should define the set of assets to list
-    function _getAllConfigs() internal virtual returns (ListingConfig[] memory);
+    function getAllConfigs() public virtual returns (Listing[] memory);
 }
