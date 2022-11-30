@@ -5,10 +5,10 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Avalanche} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3AvaRiskParameterUpdate, ParameterSet, NUM_UPDATES} from '../contracts/gauntlet/AaveV3AvaRiskParameterUpdate.sol';
+import {AaveV3AvaBorrowCapsUpdate, ParameterSet, NUM_UPDATES} from '../contracts/gauntlet/AaveV3AvaBorrowCapsUpdate.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
-contract RiskParameterUpdateByGuardian is Test {
+contract BorrowCapUpdateByGuardian is Test {
     using stdStorage for StdStorage;
 
     address public constant GUARDIAN_AVALANCHE =
@@ -18,13 +18,13 @@ contract RiskParameterUpdateByGuardian is Test {
         vm.createSelectFork(vm.rpcUrl("avalanche"), 22760128);
     }
 
-    function testRiskParameterUpdate() public {
+    function testBorrowCapsUpdate() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
             ._getReservesConfigs(false);
 
         vm.startPrank(GUARDIAN_AVALANCHE);
 
-        AaveV3AvaRiskParameterUpdate updateSteward = new AaveV3AvaRiskParameterUpdate();
+        AaveV3AvaBorrowCapsUpdate updateSteward = new AaveV3AvaBorrowCapsUpdate();
 
         IACLManager aclManager = AaveV3Avalanche.ACL_MANAGER;
 
@@ -44,9 +44,7 @@ contract RiskParameterUpdateByGuardian is Test {
             symbols[i] = parameters[i].symbol;
 
             ReserveConfig memory expectedConfig = AaveV3Helpers._findReserveConfig(allConfigsBefore, symbols[i], false);
-            expectedConfig.ltv = parameters[i].ltv;
-            expectedConfig.liquidationThreshold = parameters[i].liquidationThreshold;
-            expectedConfig.liquidationBonus = parameters[i].liquidationBonus;
+            expectedConfig.borrowCap = parameters[i].borrowCap;
 
             AaveV3Helpers._validateReserveConfig(
                 expectedConfig,

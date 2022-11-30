@@ -18,7 +18,8 @@ test-mimatic-fantom :; forge test -vvv --match-contract MIMATICAaveV3FantomListi
 test-harmony-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV3HarmonyByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 29264480
 test-fantom-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV3FantomByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 46881340
 test-btcb-ava:; forge test -vvv --match-contract BTCBAaveV3AvaListingByGuardian
-test-risk-parameter-update:; forge test -vvv --match-contract RiskParameterUpdateByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 21789453
+test-risk-parameter-update:; forge test -vvv --match-contract RiskParameterUpdateByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 22760128
+test-borrow-cap-update:; forge test -vvv --match-contract BorrowCapUpdateByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 22760128
 trace   :; forge test -vvvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16146270
 clean  :; forge clean
 snapshot :; forge snapshot
@@ -33,5 +34,14 @@ verify-fantom-freeze-steward :;  forge script script/DeployFantomFreezeSteward.s
 deploy-ava-btcb-steward :;  forge script script/DeployAvaBTCbSteward.s.sol:DeployAvaBTCbSteward --rpc-url ${ETH_RPC_URL} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
 verify-ava-btcb-steward :;  forge script script/DeployAvaBTCbSteward.s.sol:DeployAvaBTCbSteward --rpc-url ${ETH_RPC_URL} --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
 
-deploy-ava-risk-update-steward:; forge script script/DeployAaveV3AvaRiskParameterSteward.s.sol:DeployAaveV3AvaRiskParameterSteward --rpc-url ${ETH_RPC_URL} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
+deploy-ava-risk-update-steward:; forge script script/DeployAaveV3AvaRiskParameterSteward.s.sol:DeployAaveV3AvaRiskParameterSteward --rpc-url ${ETH_RPC_URL} --broadcast --legacy --private-key ${PRIVATE_KEY} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
 deploy-ava-risk-update-steward-dry-run:; forge script script/DeployAaveV3AvaRiskParameterSteward.s.sol:DeployAaveV3AvaRiskParameterSteward --rpc-url ${ETH_RPC_URL} --legacy -vvvv
+
+execute-ava-risk-update-steward:; forge script script/ExecuteAaveV3AvaRiskParameterSteward.s.sol:ExecuteAaveV3AvaRiskParameterSteward --rpc-url ${ETH_RPC_URL} --broadcast --legacy --private-key ${PRIVATE_KEY} -vvvv
+execute-ava-risk-update-steward-dry-run:; forge script script/ExecuteAaveV3AvaRiskParameterSteward.s.sol:ExecuteAaveV3AvaRiskParameterSteward --rpc-url ${ETH_RPC_URL} --private-key ${PRIVATE_KEY} --legacy -vvvv
+
+deploy-ava-borrow-cap-steward:; forge script script/DeployAaveV3AvaBorrowCapsSteward.s.sol:DeployAaveV3AvaBorrowCapsSteward --rpc-url ${ETH_RPC_URL} --broadcast --legacy --private-key ${PRIVATE_KEY} --verify --etherscan-api-key ${ETHERSCAN_API_KEY} -vvvv
+deploy-ava-borrow-cap-steward-dry-run:; forge script script/DeployAaveV3AvaBorrowCapsSteward.s.sol:DeployAaveV3AvaBorrowCapsSteward --rpc-url ${ETH_RPC_URL} --legacy -vvvv
+
+execute-ava-borrow-cap-steward:; forge script script/ExecuteAaveV3AvaBorrowCapsSteward.s.sol:ExecuteAaveV3AvaBorrowCapsSteward --rpc-url ${ETH_RPC_URL} --broadcast --legacy --private-key ${PRIVATE_KEY} -vvvv
+execute-ava-borrow-cap-steward-dry-run:; forge script script/ExecuteAaveV3AvaBorrowCapsSteward.s.sol:ExecuteAaveV3AvaBorrowCapsSteward --rpc-url ${ETH_RPC_URL} --private-key ${PRIVATE_KEY} --legacy -vvvv
