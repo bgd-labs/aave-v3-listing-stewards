@@ -20,7 +20,7 @@ contract AaveV3AvaCapsSteward is StewardBase {
     uint256 public constant WBTCe_CAP = 5_233;
     uint256 public constant LINKe_CAP = 353_000;
     uint256 public constant AAVEe_CAP = 4_500;
-    uint256 public constant WAVAX_CAP = 131_000_000;
+    uint256 public constant WAVAX_CAP = 13_100_000;
 
     function execute()
         external
