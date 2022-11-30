@@ -18,6 +18,7 @@ test-mimatic-fantom :; forge test -vvv --match-contract MIMATICAaveV3FantomListi
 test-harmony-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV3HarmonyByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 29264480
 test-fantom-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV3FantomByGuardian --rpc-url=${ETH_RPC_URL} --fork-block-number 46881340
 test-btcb-ava:; forge test -vvv --match-contract BTCBAaveV3AvaListingByGuardian
+test-v3-ava-caps:; forge test -vvv --match-contract AaveV3AvaCapsByGuardian
 trace   :; forge test -vvvv --rpc-url=${ETH_RPC_URL} --fork-block-number 16146270
 clean  :; forge clean
 snapshot :; forge snapshot
