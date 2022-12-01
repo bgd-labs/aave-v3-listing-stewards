@@ -16,9 +16,9 @@ Helper smart contracts to list assets on Aave v3 or change configs. Designed to 
 
 | Multiple      | config-change | Aave v3 Avalanche    | [Supply Caps Steward](./src/contracts/v3-ava-supply-caps-30-11-2022/AaveV3AvaCapsSteward.sol)             | [Tests](./src/test/AaveV3AvaCaps30-11-2022-ByGuardian.t.sol)       | N/A                                                                                                                      |
 
-| Multiple      | config-change | Aave v3 Arbitrum    | [Supply Caps Steward](./src/contracts/v3-Arbitrum-supply-caps-30-11-2022 /AaveV3ArbCapsSteward.sol)             | [Tests](./src/test/AaveV3ArbCaps30-11-2022-ByGuardian.t.sol)       | N/A                                                                                                                      |
+| Multiple      | config-change | Aave v3 Arbitrum    | [Supply Caps Steward](./src/contracts/v3-Arbitrum-supply-caps-30-11-2022/AaveV3ArbCapsSteward.sol)             | [Tests](./src/test/AaveV3ArbCaps30-11-2022-ByGuardian.t.sol)       | N/A                                                                                                                      |
 
-| Multiple      | config-change | Aave v3 Optimism    | [Supply Caps Steward](./src/contracts/v3-optimism-supply-caps-30-11-2022 /AaveV3OptCapsSteward.sol)             | [Tests](./src/test/AaveV3OptCaps30-11-2022-ByGuardian.t.sol)       | N/A                                                                                                                      |
+| Multiple      | config-change | Aave v3 Optimism    | [Supply Caps Steward](./src/contracts/v3-optimism-supply-caps-30-11-2022/AaveV3OptCapsSteward.sol)             | [Tests](./src/test/AaveV3OptCaps30-11-2022-ByGuardian.t.sol)       | N/A                                                                                                                      |
 
 
 ### Copyright
