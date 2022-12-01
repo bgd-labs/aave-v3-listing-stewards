@@ -2,7 +2,7 @@
 pragma solidity ^0.8.10;
 
 import '../common/StewardBase.sol';
-import {AaveV3Avalanche} from 'aave-address-book/AaveV3Avalanche.sol';
+import {AaveV3Optimism} from 'aave-address-book/AaveAddressBook.sol';
 
 /**
  * @dev This steward sets supply caps for multiple assets on AAVE V3 Avalanche
@@ -24,11 +24,11 @@ contract AaveV3AvaCapsSteward is StewardBase {
 
     function execute()
         external
-        withRennounceOfAllAavePermissions(AaveV3Avalanche.ACL_MANAGER)
+        withRennounceOfAllAavePermissions(AaveV3Optimism.ACL_MANAGER)
         withOwnershipBurning
         onlyOwner
     {
-        IPoolConfigurator configurator = AaveV3Avalanche.POOL_CONFIGURATOR;
+        IPoolConfigurator configurator = AaveV3Optimism.POOL_CONFIGURATOR;
         //113K ETH CAP
         configurator.setSupplyCap(WETHe, WETHe_CAP);
 
