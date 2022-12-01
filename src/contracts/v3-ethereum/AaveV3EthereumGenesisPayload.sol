@@ -46,21 +46,21 @@ contract AaveV3EthereumGenesisPayload is GenericV3ListingEngine {
             liqProtocolFee: 10_00
         });
         listings[1] = Listing({
-            asset: address(0), // TODO
+            asset: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, // TODO
             assetSymbol: 'USDC',
-            priceFeed: address(0), // TODO
+            priceFeed: 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6,
             rateStrategy: address(0), // TODO
             enabledToBorrow: true,
             stableRateModeEnabled: false, // TODO
-            borrowableInIsolation: false, // TODO
-            LTV: 0, // TODO
-            liqThreshold: 0, // TODO
-            liqBonus: 0, // TODO
-            reserveFactor: 0, // TODO
-            supplyCap: 0, // TODO
-            borrowCap: 0, // TODO
+            borrowableInIsolation: true, // TODO
+            LTV: 80_00, // TODO
+            liqThreshold: 82_00, // TODO
+            liqBonus: 4_50, // TODO
+            reserveFactor: 10_00, // TODO
+            supplyCap: 100_000_000, // TODO
+            borrowCap: 75_000_000, // TODO
             debtCeiling: 0,
-            liqProtocolFee: 0 // TODO
+            liqProtocolFee: 10_00 // TODO
         });
 
         return listings;
