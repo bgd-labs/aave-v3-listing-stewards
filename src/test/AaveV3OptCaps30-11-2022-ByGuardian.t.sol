@@ -5,7 +5,7 @@ import 'forge-std/Test.sol';
 
 import {IPoolConfigurator, ConfiguratorInputTypes, IACLManager} from 'aave-address-book/AaveV3.sol';
 import {AaveV3Optimism} from 'aave-address-book/AaveAddressBook.sol';
-import {AaveV3OptCapsSteward} from '../contracts/v3-optimism-supply-caps-30-11-2022 /AaveV3OptCapsSteward.sol';
+import {AaveV3OptCapsSteward} from '../contracts/v3-optimism-supply-caps-30-11-2022/AaveV3OptCapsSteward.sol';
 import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/AaveV3Helpers.sol';
 
 contract AaveV3OptCapsByGuardian is Test {
@@ -55,7 +55,7 @@ contract AaveV3OptCapsByGuardian is Test {
             LinkSymbol,
             false
         );
-        LinkConfig.supplyCap = LINKe_CAP;
+        LinkConfig.supplyCap = LINK_CAP;
         AaveV3Helpers._validateReserveConfig(LinkConfig, allConfigsAfter);
 
         //WETH
@@ -64,7 +64,7 @@ contract AaveV3OptCapsByGuardian is Test {
             WETHSymbol,
             false
         );
-        WETHConfig.supplyCap = WETHe_CAP;
+        WETHConfig.supplyCap = WETH_CAP;
         AaveV3Helpers._validateReserveConfig(WETHConfig, allConfigsAfter);
 
         //WBTC
@@ -73,7 +73,7 @@ contract AaveV3OptCapsByGuardian is Test {
             WBTCSymbol,
             false
         );
-        WBTCConfig.supplyCap = WBTCe_CAP;
+        WBTCConfig.supplyCap = WBTC_CAP;
         AaveV3Helpers._validateReserveConfig(WBTCConfig, allConfigsAfter);
 
         require(capsSteward.owner() == address(0), 'INVALID_OWNER_POST_CAPS');
