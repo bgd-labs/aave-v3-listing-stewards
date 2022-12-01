@@ -11,8 +11,8 @@ import {AaveV3Helpers, ReserveConfig, ReserveTokens, IERC20} from './helpers/Aav
 contract AaveV3ArbCapsByGuardian is Test {
     using stdStorage for StdStorage;
 
-    address public constant GUARDIAN_AVALANCHE =
-        0xa35b76E4935449E33C56aB24b23fcd3246f13470; //TODO - where to get this from?
+    address public constant GUARDIAN_ARBITRUM =
+        0xbbd9f90699c1FA0D7A65870D241DD1f1217c96Eb;
 
     string public constant LinkSymbol = 'LINK';
     string public constant WETHSymbol = 'WETH';
@@ -28,15 +28,13 @@ contract AaveV3ArbCapsByGuardian is Test {
     //2.5K AAVE
     uint256 public constant AAVE_CAP = 2_500;
 
-    function setUp() public {
-        vm.createSelectFork(vm.rpcUrl('arbitrum'), 42713431);
-    }
+    function setUp() public {}
 
     function testNewSupplyCaps() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
             ._getReservesConfigs(false);
 
-        vm.startPrank(GUARDIAN_AVALANCHE);
+        vm.startPrank(GUARDIAN_ARBITRUM);
 
         AaveV3ArbCapsSteward capsSteward = new AaveV3ArbCapsSteward();
 
