@@ -15,12 +15,12 @@ import {AaveV2Ethereum} from 'aave-address-book/AaveV2Ethereum.sol';
 contract AaveV3EthereumGenesisPayload is GenericV3ListingEngine {
     constructor()
         GenericV3ListingEngine(
-            address(0), // TODO
-            address(0), // TODO
-            address(0), // TODO
-            address(0), // TODO
-            address(0), // TODO
-            address(0), // TODO
+            0xB305369CC06FD05898b1DCFb96Ae27D0c783a89e, // TODO currently fork
+            0xc1EeD9232A0A44c2463ACB83698c162966FBc78d, // TODO currently fork
+            0x6484EB0792c646A4827638Fc1B6F20461418eB00, // TODO currently fork
+            0x04f1A5b9BD82a5020C49975ceAd160E98d8B77Af, // TODO currently fork
+            0x840748F7Fd3EA956E5f4c88001da5CC1ABCBc038, // TODO currently fork
+            0xE4FAEc0F9344dF83E71C4E0043e058304ACbcC09, // TODO currently fork
             AaveV2Ethereum.COLLECTOR
         )
     {}
