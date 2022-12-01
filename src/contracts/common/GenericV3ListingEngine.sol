@@ -72,6 +72,8 @@ abstract contract GenericV3ListingEngine {
     address public immutable STOKEN_IMPL;
     address public immutable REWARDS_CONTROLLER;
     address public immutable COLLECTOR;
+    string public constant NETWORK_NAME = 'Ethereum';
+    string public constant NETWORK_PREFIX = 'Eth';
 
     constructor(
         address configurator,
@@ -82,6 +84,17 @@ abstract contract GenericV3ListingEngine {
         address rewardsController,
         address collector
     ) {
+        require(configurator != address(0), 'ONLY_NONZERO_CONFIGURATOR');
+        require(oracle != address(0), 'ONLY_NONZERO_ORACLE');
+        require(aTokenImpl != address(0), 'ONLY_NONZERO_ATOKEN');
+        require(vTokenImpl != address(0), 'ONLY_NONZERO_VTOKEN');
+        require(sTokenImpl != address(0), 'ONLY_NONZERO_STOKEN');
+        require(
+            rewardsController != address(0),
+            'ONLY_NONZERO_REWARDS_CONTROLLER'
+        );
+        require(collector != address(0), 'ONLY_NONZERO_COLLECTOR');
+
         POOL_CONFIGURATOR = IPoolConfigurator(configurator);
         ORACLE = IAaveOracle(oracle);
         ATOKEN_IMPL = aTokenImpl;
@@ -120,6 +133,7 @@ abstract contract GenericV3ListingEngine {
                 basics[i].priceFeed != address(0),
                 'PRICE_FEED_ALWAYS_REQUIRED'
             );
+            // TODO require that latestAnswer() returns more than 0
             assets[i] = ids[i];
             sources[i] = basics[i].priceFeed;
         }
@@ -134,38 +148,62 @@ abstract contract GenericV3ListingEngine {
                 ids.length
             );
         for (uint256 i = 0; i < ids.length; i++) {
+            uint8 decimals = IERC20(ids[i]).decimals();
+            require(decimals > 0, 'INVALID_ASSET_DECIMALS');
+            require(
+                basics[i].rateStrategy != address(0),
+                'ONLY_NONZERO_RATE_STRATEGY'
+            );
+
             initReserveInputs[i] = ConfiguratorInputTypes.InitReserveInput({
                 aTokenImpl: ATOKEN_IMPL,
                 stableDebtTokenImpl: STOKEN_IMPL,
                 variableDebtTokenImpl: VTOKEN_IMPL,
-                underlyingAssetDecimals: IERC20(ids[i]).decimals(),
+                underlyingAssetDecimals: decimals,
                 interestRateStrategyAddress: basics[i].rateStrategy,
                 underlyingAsset: ids[i],
                 treasury: COLLECTOR,
                 incentivesController: REWARDS_CONTROLLER,
                 aTokenName: string(
-                    abi.encodePacked('Aave Ethereum ', basics[i].assetSymbol)
+                    abi.encodePacked(
+                        'Aave ',
+                        NETWORK_NAME,
+                        ' ',
+                        basics[i].assetSymbol
+                    )
                 ), // TODO change to string.concat
                 aTokenSymbol: string(
-                    abi.encodePacked('aEth', basics[i].assetSymbol)
+                    abi.encodePacked('a', NETWORK_PREFIX, basics[i].assetSymbol)
                 ),
                 variableDebtTokenName: string(
                     abi.encodePacked(
-                        'Aave Ethereum Variable Debt ',
+                        'Aave ',
+                        NETWORK_NAME,
+                        ' Variable Debt ',
                         basics[i].assetSymbol
                     )
                 ),
                 variableDebtTokenSymbol: string(
-                    abi.encodePacked('variableDebtEth', basics[i].assetSymbol)
+                    abi.encodePacked(
+                        'variableDebt',
+                        NETWORK_PREFIX,
+                        basics[i].assetSymbol
+                    )
                 ),
                 stableDebtTokenName: string(
                     abi.encodePacked(
-                        'Aave Ethereum Stable Debt ',
+                        'Aave ',
+                        NETWORK_NAME,
+                        ' Stable Debt ',
                         basics[i].assetSymbol
                     )
                 ),
                 stableDebtTokenSymbol: string(
-                    abi.encodePacked('stableDebtEth', basics[i].assetSymbol)
+                    abi.encodePacked(
+                        'stableDebt',
+                        NETWORK_PREFIX,
+                        basics[i].assetSymbol
+                    )
                 ),
                 params: bytes('')
             });
@@ -192,10 +230,11 @@ abstract contract GenericV3ListingEngine {
             if (borrows[i].enabledToBorrow) {
                 POOL_CONFIGURATOR.setReserveBorrowing(ids[i], true);
 
-                // If enabled to borrow, the reserve factor should always be configured
+                // If enabled to borrow, the reserve factor should always be configured and > 0
                 require(
-                    borrows[i].reserveFactor > 0,
-                    'RESERVE_FACTOR_REQUIRED'
+                    borrows[i].reserveFactor > 0 &&
+                        borrows[i].reserveFactor <= 99_99,
+                    'INVALID_RESERVE_FACTOR'
                 );
                 POOL_CONFIGURATOR.setReserveFactor(
                     ids[i],
@@ -224,11 +263,21 @@ abstract contract GenericV3ListingEngine {
     ) internal {
         for (uint256 i = 0; i < ids.length; i++) {
             if (collaterals[i].liqThreshold != 0) {
+                require(
+                    collaterals[i].liqThreshold + collaterals[i].liqBonus <
+                        100_00,
+                    'INVALID_LIQ_PARAMS_ABOVE_100'
+                );
+                require(
+                    collaterals[i].liqProtocolFee < 100_00,
+                    'INVALID_LIQ_PROTOCOL_FEE'
+                );
+
                 POOL_CONFIGURATOR.configureReserveAsCollateral(
                     ids[i],
                     collaterals[i].LTV,
                     collaterals[i].liqThreshold,
-                    10000 + collaterals[i].liqBonus // Opinionated, seems more correct to define liqBonus as 5_00 for 5%
+                    100_00 + collaterals[i].liqBonus // Opinionated, seems more correct to define liqBonus as 5_00 for 5%
                 );
 
                 POOL_CONFIGURATOR.setLiquidationProtocolFee(
