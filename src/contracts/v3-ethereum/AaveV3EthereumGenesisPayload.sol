@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.10;
 
-import {GenericV3ListingEngine} from '../common/GenericV3ListingEngine.sol';
+import {AaveV3ListingBase} from './AaveV3ListingBase.sol';
+import {IGenericV3ListingEngine} from '../common/IGenericV3ListingEngine.sol'; // TODO improve the re-importing
 import {AaveV2Ethereum} from 'aave-address-book/AaveV2Ethereum.sol';
 
 /**
@@ -12,23 +13,20 @@ import {AaveV2Ethereum} from 'aave-address-book/AaveV2Ethereum.sol';
  * Discussion: https://governance.aave.com/t/arc-aave-v3-ethereum-deployment-assets-and-configurations/10238
  * @author BGD Labs
  */
-contract AaveV3EthereumGenesisPayload is GenericV3ListingEngine {
-    constructor()
-        GenericV3ListingEngine(
-            0xB305369CC06FD05898b1DCFb96Ae27D0c783a89e, // TODO currently fork
-            0xc1EeD9232A0A44c2463ACB83698c162966FBc78d, // TODO currently fork
-            0x6484EB0792c646A4827638Fc1B6F20461418eB00, // TODO currently fork
-            0x04f1A5b9BD82a5020C49975ceAd160E98d8B77Af, // TODO currently fork
-            0x840748F7Fd3EA956E5f4c88001da5CC1ABCBc038, // TODO currently fork
-            0xE4FAEc0F9344dF83E71C4E0043e058304ACbcC09, // TODO currently fork
-            AaveV2Ethereum.COLLECTOR
-        )
+contract AaveV3EthereumGenesisPayload is AaveV3ListingBase {
+    constructor(IGenericV3ListingEngine listingEngine)
+        AaveV3ListingBase(listingEngine)
     {}
 
-    function getAllConfigs() public override returns (Listing[] memory) {
-        Listing[] memory listings = new Listing[](2);
+    function getAllConfigs()
+        public
+        override
+        returns (IGenericV3ListingEngine.Listing[] memory)
+    {
+        IGenericV3ListingEngine.Listing[]
+            memory listings = new IGenericV3ListingEngine.Listing[](2);
 
-        listings[0] = Listing({
+        listings[0] = IGenericV3ListingEngine.Listing({
             asset: 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2,
             assetSymbol: 'WETH',
             priceFeed: 0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419,
@@ -45,7 +43,7 @@ contract AaveV3EthereumGenesisPayload is GenericV3ListingEngine {
             debtCeiling: 0,
             liqProtocolFee: 10_00
         });
-        listings[1] = Listing({
+        listings[1] = IGenericV3ListingEngine.Listing({
             asset: 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48, // TODO
             assetSymbol: 'USDC',
             priceFeed: 0x8fFfFfd4AfB6115b954Bd326cbe7B4BA576818f6,
@@ -66,9 +64,19 @@ contract AaveV3EthereumGenesisPayload is GenericV3ListingEngine {
         return listings;
     }
 
-    function execute() external {
-        POOL_CONFIGURATOR.setPoolPause(false);
+    function getPoolContext()
+        public
+        override
+        returns (IGenericV3ListingEngine.PoolContext memory)
+    {
+        return
+            IGenericV3ListingEngine.PoolContext({
+                networkName: 'Ethereum',
+                networkAbbreviation: 'Eth'
+            });
+    }
 
-        super._listAssets();
+    function _preExecute() internal override {
+        AaveV2Ethereum.POOL_CONFIGURATOR.setPoolPause(false);
     }
 }

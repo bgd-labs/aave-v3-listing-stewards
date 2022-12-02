@@ -2,6 +2,7 @@
 pragma solidity ^0.8.10;
 
 import {IERC20} from '../interfaces/IERC20.sol';
+import {IGenericV3ListingEngine} from './IGenericV3ListingEngine.sol';
 import {IPoolConfigurator, IAaveOracle, ConfiguratorInputTypes} from 'aave-address-book/AaveV3.sol';
 
 /**
@@ -12,59 +13,7 @@ import {IPoolConfigurator, IAaveOracle, ConfiguratorInputTypes} from 'aave-addre
  * - Only one Collector for all assets
  * @author BGD Labs
  */
-abstract contract GenericV3ListingEngine {
-    struct Listing {
-        address asset;
-        string assetSymbol;
-        address priceFeed;
-        address rateStrategy; // Mandatory, no matter if enabled for borrowing or not
-        bool enabledToBorrow;
-        bool stableRateModeEnabled; // Only considered is enabledToBorrow == true
-        bool borrowableInIsolation; // Only considered is enableToBorrow == true
-        uint256 LTV; // Only considered if liqThreshold > 0
-        uint256 liqThreshold; // If `0`, the asset will not be enabled as collateral
-        uint256 liqBonus; // Only considered if liqThreshold > 0
-        uint256 reserveFactor; // Only considered if enabledToBorrow == true
-        uint256 supplyCap; // Always configured
-        uint256 borrowCap; // Always configured, no matter if enabled for borrowing or not
-        uint256 debtCeiling; // Only considered if liqThreshold > 0
-        uint256 liqProtocolFee; // Only considered if liqThreshold > 0
-    }
-
-    struct AssetsConfig {
-        address[] ids;
-        Basic[] basics;
-        Borrow[] borrows;
-        Collateral[] collaterals;
-        Caps[] caps;
-    }
-
-    struct Basic {
-        string assetSymbol;
-        address priceFeed;
-        address rateStrategy; // Mandatory, no matter if enabled for borrowing or not
-    }
-
-    struct Borrow {
-        bool enabledToBorrow;
-        bool stableRateModeEnabled; // Only considered is enabledToBorrow == true
-        bool borrowableInIsolation; // Only considered is enableToBorrow == true
-        uint256 reserveFactor; // Only considered if enabledToBorrow == true
-    }
-
-    struct Collateral {
-        uint256 LTV; // Only considered if liqThreshold > 0
-        uint256 liqThreshold; // If `0`, the asset will not be enabled as collateral
-        uint256 liqBonus; // Only considered if liqThreshold > 0
-        uint256 debtCeiling; // Only considered if liqThreshold > 0
-        uint256 liqProtocolFee; // Only considered if liqThreshold > 0
-    }
-
-    struct Caps {
-        uint256 supplyCap; // Always configured
-        uint256 borrowCap; // Always configured, no matter if enabled for borrowing or not
-    }
-
+contract GenericV3ListingEngine is IGenericV3ListingEngine {
     IPoolConfigurator public immutable POOL_CONFIGURATOR;
     IAaveOracle public immutable ORACLE;
     address public immutable ATOKEN_IMPL;
@@ -72,20 +21,21 @@ abstract contract GenericV3ListingEngine {
     address public immutable STOKEN_IMPL;
     address public immutable REWARDS_CONTROLLER;
     address public immutable COLLECTOR;
-    string public constant NETWORK_NAME = 'Ethereum';
-    string public constant NETWORK_PREFIX = 'Eth';
 
     constructor(
-        address configurator,
-        address oracle,
+        IPoolConfigurator configurator,
+        IAaveOracle oracle,
         address aTokenImpl,
         address vTokenImpl,
         address sTokenImpl,
         address rewardsController,
         address collector
     ) {
-        require(configurator != address(0), 'ONLY_NONZERO_CONFIGURATOR');
-        require(oracle != address(0), 'ONLY_NONZERO_ORACLE');
+        require(
+            address(configurator) != address(0),
+            'ONLY_NONZERO_CONFIGURATOR'
+        );
+        require(address(oracle) != address(0), 'ONLY_NONZERO_ORACLE');
         require(aTokenImpl != address(0), 'ONLY_NONZERO_ATOKEN');
         require(vTokenImpl != address(0), 'ONLY_NONZERO_VTOKEN');
         require(sTokenImpl != address(0), 'ONLY_NONZERO_STOKEN');
@@ -104,27 +54,25 @@ abstract contract GenericV3ListingEngine {
         COLLECTOR = collector;
     }
 
-    function _listAssets() internal {
-        Listing[] memory listings = getAllConfigs();
-
+    function listAssets(PoolContext memory context, Listing[] memory listings)
+        public
+    {
         require(listings.length != 0, 'AT_LEAST_ONE_ASSET_REQUIRED');
 
         AssetsConfig memory configs = _repackListing(listings);
 
-        _setPriceFeeds(configs.ids, configs.basics);
+        setPriceFeeds(configs.ids, configs.basics);
 
-        _initAssets(configs.ids, configs.basics);
+        initAssets(context, configs.ids, configs.basics);
 
-        _configureCaps(configs.ids, configs.caps);
+        configureCaps(configs.ids, configs.caps);
 
-        _configBorrowSide(configs.ids, configs.borrows);
+        configBorrowSide(configs.ids, configs.borrows);
 
-        _configCollateralSide(configs.ids, configs.collaterals);
+        configCollateralSide(configs.ids, configs.collaterals);
     }
 
-    function _setPriceFeeds(address[] memory ids, Basic[] memory basics)
-        internal
-    {
+    function setPriceFeeds(address[] memory ids, Basic[] memory basics) public {
         address[] memory assets = new address[](ids.length);
         address[] memory sources = new address[](ids.length);
 
@@ -142,7 +90,11 @@ abstract contract GenericV3ListingEngine {
     }
 
     /// @dev mandatory configurations for any asset getting listed, including oracle config and basic init
-    function _initAssets(address[] memory ids, Basic[] memory basics) internal {
+    function initAssets(
+        PoolContext memory context,
+        address[] memory ids,
+        Basic[] memory basics
+    ) public {
         ConfiguratorInputTypes.InitReserveInput[]
             memory initReserveInputs = new ConfiguratorInputTypes.InitReserveInput[](
                 ids.length
@@ -167,18 +119,22 @@ abstract contract GenericV3ListingEngine {
                 aTokenName: string(
                     abi.encodePacked(
                         'Aave ',
-                        NETWORK_NAME,
+                        context.networkName,
                         ' ',
                         basics[i].assetSymbol
                     )
                 ), // TODO change to string.concat
                 aTokenSymbol: string(
-                    abi.encodePacked('a', NETWORK_PREFIX, basics[i].assetSymbol)
+                    abi.encodePacked(
+                        'a',
+                        context.networkAbbreviation,
+                        basics[i].assetSymbol
+                    )
                 ),
                 variableDebtTokenName: string(
                     abi.encodePacked(
                         'Aave ',
-                        NETWORK_NAME,
+                        context.networkName,
                         ' Variable Debt ',
                         basics[i].assetSymbol
                     )
@@ -186,14 +142,14 @@ abstract contract GenericV3ListingEngine {
                 variableDebtTokenSymbol: string(
                     abi.encodePacked(
                         'variableDebt',
-                        NETWORK_PREFIX,
+                        context.networkAbbreviation,
                         basics[i].assetSymbol
                     )
                 ),
                 stableDebtTokenName: string(
                     abi.encodePacked(
                         'Aave ',
-                        NETWORK_NAME,
+                        context.networkName,
                         ' Stable Debt ',
                         basics[i].assetSymbol
                     )
@@ -201,7 +157,7 @@ abstract contract GenericV3ListingEngine {
                 stableDebtTokenSymbol: string(
                     abi.encodePacked(
                         'stableDebt',
-                        NETWORK_PREFIX,
+                        context.networkAbbreviation,
                         basics[i].assetSymbol
                     )
                 ),
@@ -211,7 +167,7 @@ abstract contract GenericV3ListingEngine {
         POOL_CONFIGURATOR.initReserves(initReserveInputs);
     }
 
-    function _configureCaps(address[] memory ids, Caps[] memory caps) internal {
+    function configureCaps(address[] memory ids, Caps[] memory caps) public {
         for (uint256 i = 0; i < ids.length; i++) {
             if (caps[i].supplyCap != 0) {
                 POOL_CONFIGURATOR.setSupplyCap(ids[i], caps[i].supplyCap);
@@ -223,8 +179,8 @@ abstract contract GenericV3ListingEngine {
         }
     }
 
-    function _configBorrowSide(address[] memory ids, Borrow[] memory borrows)
-        internal
+    function configBorrowSide(address[] memory ids, Borrow[] memory borrows)
+        public
     {
         for (uint256 i = 0; i < ids.length; i++) {
             if (borrows[i].enabledToBorrow) {
@@ -257,10 +213,10 @@ abstract contract GenericV3ListingEngine {
         }
     }
 
-    function _configCollateralSide(
+    function configCollateralSide(
         address[] memory ids,
         Collateral[] memory collaterals
-    ) internal {
+    ) public {
         for (uint256 i = 0; i < ids.length; i++) {
             if (collaterals[i].liqThreshold != 0) {
                 require(
@@ -340,7 +296,4 @@ abstract contract GenericV3ListingEngine {
                 caps: caps
             });
     }
-
-    /// @dev Children contract should define the set of assets to list
-    function getAllConfigs() public virtual returns (Listing[] memory);
 }

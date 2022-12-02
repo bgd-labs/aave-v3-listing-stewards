@@ -6,4 +6,6 @@ solc = "0.8.14"
 remappings = ["aave-address-book/=lib/aave-address-book/src/", "aave-helpers/=lib/aave-helpers/src"]
 
 [rpc_endpoints]
+ethereum = "${RPC_ETHEREUM}"
 avalanche = "${RPC_AVALANCHE}"
+polygon = "${RPC_POLYGON}"
