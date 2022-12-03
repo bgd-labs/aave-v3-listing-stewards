@@ -5,7 +5,7 @@ import '../common/StewardBase.sol';
 import {AaveV3Arbitrum} from 'aave-address-book/AaveV3Arbitrum.sol';
 
 /**
- * @dev This steward sets supply caps for multiple assets on AAVE V3 Avalanche
+ * @dev This steward sets supply caps for multiple assets on AAVE V3 Arbitrum
  * - Snapshot: https://snapshot.org/#/aave.eth/proposal/0xf40a7b4a6ecd5325553593f0f9fdc8ba04808573fdf76fc277aee52b5396a588
  * - Dicussion: https://governance.aave.com/t/arc-v3-supply-cap-recommendations-for-uncapped-assets-fast-track/10750/6
  */

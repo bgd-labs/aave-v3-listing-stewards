@@ -2,10 +2,10 @@
 pragma solidity ^0.8.10;
 
 import '../common/StewardBase.sol';
-import {AaveV3Avalanche} from 'aave-address-book/AaveV3Avalanche.sol';
+import {AaveV3Optimism} from 'aave-address-book/AaveV3Optimism.sol';
 
 /**
- * @dev This steward sets supply caps for multiple assets on AAVE V3 Avalanche
+ * @dev This steward sets supply caps for multiple assets on AAVE V3 Optimism
  * - Snapshot: https://snapshot.org/#/aave.eth/proposal/0xf40a7b4a6ecd5325553593f0f9fdc8ba04808573fdf76fc277aee52b5396a588
  * - Dicussion: https://governance.aave.com/t/arc-v3-supply-cap-recommendations-for-uncapped-assets-fast-track/10750/6
  */
@@ -23,11 +23,11 @@ contract AaveV3OptCapsSteward is StewardBase {
 
     function execute()
         external
-        withRennounceOfAllAavePermissions(AaveV3Avalanche.ACL_MANAGER)
+        withRennounceOfAllAavePermissions(AaveV3Optimism.ACL_MANAGER)
         withOwnershipBurning
         onlyOwner
     {
-        IPoolConfigurator configurator = AaveV3Avalanche.POOL_CONFIGURATOR;
+        IPoolConfigurator configurator = AaveV3Optimism.POOL_CONFIGURATOR;
 
         configurator.setSupplyCap(WETH, WETH_CAP);
 
