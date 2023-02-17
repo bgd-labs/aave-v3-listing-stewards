@@ -6,6 +6,7 @@ import {AaveGovernanceV2} from 'aave-address-book/AaveGovernanceV2.sol';
 import {AaveV3Optimism} from 'aave-address-book/AaveV3Optimism.sol';
 import {AaveV3Arbitrum} from 'aave-address-book/AaveV3Arbitrum.sol';
 import {PermissionsMigrationPayload} from '../src/contracts/misc-guardian/PermissionsMigrationPayload.sol';
+import {CollectorPermissionsMigrationPayload} from '../contracts/mic-guardian/CollectorPermissionsMigrationPayload.sol';
 
 library OptimismPayloadLib {
   function _deploy() internal returns (PermissionsMigrationPayload) {
@@ -17,6 +18,15 @@ library OptimismPayloadLib {
         AaveV3Optimism.POOL_ADDRESSES_PROVIDER_REGISTRY,
         AaveV3Optimism.ACL_MANAGER,
         AaveV3Optimism.POOL_ADDRESSES_PROVIDER
+      );
+  }
+
+  function _deployPayloadCollector() internal returns (CollectorPermissionsMigrationPayload) {
+    return
+      new CollectorPermissionsMigrationPayload(
+        AaveGovernanceV2.OPTIMISM_BRIDGE_EXECUTOR,
+        AaveV3Optimism.COLLECTOR,
+        AaveV3Optimism.COLLECTOR_CONTROLLER
       );
   }
 }
@@ -33,6 +43,15 @@ library ArbitrumPayloadLib {
         AaveV3Arbitrum.POOL_ADDRESSES_PROVIDER
       );
   }
+
+  function _deployPayloadCollector() internal returns (CollectorPermissionsMigrationPayload) {
+    return
+      new CollectorPermissionsMigrationPayload(
+        AaveGovernanceV2.ARBITRUM_BRIDGE_EXECUTOR,
+        AaveV3Arbitrum.COLLECTOR,
+        AaveV3Arbitrum.COLLECTOR_CONTROLLER
+      );
+  }
 }
 
 contract DeployOptimismPayload is Script {
@@ -47,6 +66,22 @@ contract DeployArbitrumPayload is Script {
   function run() external {
     vm.startBroadcast();
     ArbitrumPayloadLib._deploy();
+    vm.stopBroadcast();
+  }
+}
+
+contract DeployCollectorOptimismPayload is Script {
+  function run() external {
+    vm.startBroadcast();
+    OptimismPayloadLib._deployPayloadCollector();
+    vm.stopBroadcast();
+  }
+}
+
+contract DeployCollectorArbitrumPayload is Script {
+  function run() external {
+    vm.startBroadcast();
+    ArbitrumPayloadLib._deployPayloadCollector();
     vm.stopBroadcast();
   }
 }
