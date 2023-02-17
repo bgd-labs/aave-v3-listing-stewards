@@ -40,7 +40,9 @@ deploy-ava-btcb-steward :;  forge script script/DeployAvaBTCbSteward.s.sol:Deplo
 verify-ava-btcb-steward :;  forge script script/DeployAvaBTCbSteward.s.sol:DeployAvaBTCbSteward --rpc-url ${RPC_AVALANCHE} --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY_AVALANCHE} -vvvv
 
 deploy-permission-migration-op :;  forge script script/DeployPermissionsMigrationPayload.s.sol:DeployOptimismPayload --rpc-url ${RPC_OPTIMISM} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY_OPTIMISM} -vvvv
+deploy-permission-collector-migration-op :;  forge script script/DeployCollectorOptimismPayload.s.sol:DeployOptimismPayload --rpc-url ${RPC_OPTIMISM} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY_OPTIMISM} -vvvv
 deploy-permission-migration-arb :;  forge script script/DeployPermissionsMigrationPayload.s.sol:DeployArbitrumPayload --rpc-url ${RPC_ARBITRUM} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY_ARBITRUM} -vvvv
+deploy-permission-collector-migration-arb :;  forge script script/DeployPermissionsMigrationPayload.s.sol:DeployCollectorArbitrumPayload --rpc-url ${RPC_ARBITRUM} --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify --etherscan-api-key ${ETHERSCAN_API_KEY_ARBITRUM} -vvvv
 
 # diffs
 git-diff :
