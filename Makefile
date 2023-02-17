@@ -22,6 +22,10 @@ test-permissions-migration :
 	forge test --match-contract PermissionsMigrationToCrosschain -vvv
 	make git-diff before=./reports/Optimism_permissions-pre-migration.md after=./reports/Optimism_permissions-post-migration.md out=diff-Optimism-permissions-migration
 	make git-diff before=./reports/Arbitrum_permissions-pre-migration.md after=./reports/Arbitrum_permissions-post-migration.md out=diff-Arbitrum-permissions-migration
+test-collector-permissions-migration :
+	forge test --match-contract CollectorPermissionsMigrationToCrosschain -vvv
+	make git-diff before=./reports/Optimism_permissions-pre-migration.md after=./reports/Optimism_permissions-post-migration.md out=diff-Optimism-permissions-migration
+	make git-diff before=./reports/Arbitrum_permissions-pre-migration.md after=./reports/Arbitrum_permissions-post-migration.md out=diff-Arbitrum-permissions-migration
 clean  :; forge clean
 snapshot :; forge snapshot
 
