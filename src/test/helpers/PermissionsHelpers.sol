@@ -8,6 +8,7 @@ import {AaveV3Optimism} from 'aave-address-book/AaveV3Optimism.sol';
 import {AaveV3Arbitrum} from 'aave-address-book/AaveV3Arbitrum.sol';
 import {IACLManager, IPoolAddressesProvider} from 'aave-address-book/AaveV3.sol';
 import {IOwnable} from '../../contracts/interfaces/IOwnable.sol';
+import {ProxyHelpers} from 'aave-helpers/ProxyHelpers.sol';
 
 library PermissionsData {
   address internal constant AAVE_GUARDIAN_ARBITRUM = 0xbbd9f90699c1FA0D7A65870D241DD1f1217c96Eb;
@@ -30,6 +31,8 @@ library PermissionsData {
     address wrappedTokenGateway;
     address emissionManager;
     address aclManager;
+    address collector;
+    address controllerOfCollector;
   }
 
   function _getPermissionsSourcesArb() internal pure returns (AavePermissionsSources memory) {
@@ -41,7 +44,9 @@ library PermissionsData {
         swapCollateralAdapter: address(AaveV3Arbitrum.SWAP_COLLATERAL_ADAPTER),
         wrappedTokenGateway: address(AaveV3Arbitrum.WETH_GATEWAY),
         emissionManager: address(AaveV3Arbitrum.EMISSION_MANAGER),
-        aclManager: address(AaveV3Arbitrum.ACL_MANAGER)
+        aclManager: address(AaveV3Arbitrum.ACL_MANAGER),
+        collector: AaveV3Arbitrum.COLLECTOR,
+        controllerOfCollector: address(AaveV3Arbitrum.COLLECTOR_CONTROLLER)
       });
   }
 
@@ -54,7 +59,9 @@ library PermissionsData {
         swapCollateralAdapter: address(AaveV3Optimism.SWAP_COLLATERAL_ADAPTER),
         wrappedTokenGateway: address(AaveV3Optimism.WETH_GATEWAY),
         emissionManager: address(AaveV3Optimism.EMISSION_MANAGER),
-        aclManager: address(AaveV3Optimism.ACL_MANAGER)
+        aclManager: address(AaveV3Optimism.ACL_MANAGER),
+        collector: AaveV3Optimism.COLLECTOR,
+        controllerOfCollector: address(AaveV3Optimism.COLLECTOR_CONTROLLER)
       });
   }
 
@@ -116,16 +123,17 @@ abstract contract BaseAavePermissionsHelper is Test {
     revert('_chooseIdentifyAddress(). INVALID_NETWORK');
   }
 
-  function _identifyAddressArb(address who) internal returns (string memory) {
+  function _identifyAddressArb(address who) internal pure returns (string memory) {
     return _identifyAddress(who, PermissionsData._getKnownAccountsArb());
   }
 
-  function _identifyAddressOp(address who) internal returns (string memory) {
+  function _identifyAddressOp(address who) internal pure returns (string memory) {
     return _identifyAddress(who, PermissionsData._getKnownAccountsOp());
   }
 
   function _identifyAddress(address who, PermissionsData.PermissionHolder[] memory knownAccounts)
     internal
+    pure
     returns (string memory)
   {
     for (uint256 i = 0; i < knownAccounts.length; i++) {
@@ -219,6 +227,22 @@ abstract contract BaseAavePermissionsHelper is Test {
       buildMDOneElRow(
         'Owner of Emission Manager',
         _identifyAddressOnNetwork(IOwnable(poolSources.emissionManager).owner())
+      )
+    );
+    vm.writeLine(
+      path,
+      buildMDOneElRow(
+        'Owner of Controller of Collector',
+        _identifyAddressOnNetwork(IOwnable(poolSources.controllerOfCollector).owner())
+      )
+    );
+    vm.writeLine(
+      path,
+      buildMDOneElRow(
+        'Proxy admin of Collector',
+        _identifyAddressOnNetwork(
+          ProxyHelpers.getInitializableAdminUpgradeabilityProxyAdmin(vm, poolSources.collector)
+        )
       )
     );
 
