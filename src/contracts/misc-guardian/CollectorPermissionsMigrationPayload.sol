@@ -20,19 +20,27 @@ contract CollectorPermissionsMigrationPayload {
   ITransparentProxy public immutable COLLECTOR;
   IOwnable public immutable CONTROLLER_OF_COLLECTOR;
   address public immutable BRIDGE_EXECUTOR;
+  IOwnable public immutable COLLATERAL_SWAP_ADAPTER;
+  IOwnable public immutable REPAY_WITH_COLLATERAL_ADAPTER;
 
   constructor(
     address bridgeExecutor,
     address collector,
-    ICollector controllerOfCollector
+    ICollector controllerOfCollector,
+    address collateralSwapAdapter,
+    address repayWithCollateralAdapter
   ) {
     COLLECTOR = ITransparentProxy(collector);
     CONTROLLER_OF_COLLECTOR = IOwnable(address(controllerOfCollector));
     BRIDGE_EXECUTOR = bridgeExecutor;
+    COLLATERAL_SWAP_ADAPTER = IOwnable(collateralSwapAdapter);
+    REPAY_WITH_COLLATERAL_ADAPTER = IOwnable(repayWithCollateralAdapter);
   }
 
   function execute() external {
     CONTROLLER_OF_COLLECTOR.transferOwnership(BRIDGE_EXECUTOR);
     COLLECTOR.changeAdmin(BRIDGE_EXECUTOR);
+    COLLATERAL_SWAP_ADAPTER.transferOwnership(BRIDGE_EXECUTOR);
+    REPAY_WITH_COLLATERAL_ADAPTER.transferOwnership(BRIDGE_EXECUTOR);
   }
 }

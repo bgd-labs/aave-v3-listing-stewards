@@ -26,7 +26,9 @@ library OptimismPayloadLib {
       new CollectorPermissionsMigrationPayload(
         AaveGovernanceV2.OPTIMISM_BRIDGE_EXECUTOR,
         AaveV3Optimism.COLLECTOR,
-        AaveV3Optimism.COLLECTOR_CONTROLLER
+        AaveV3Optimism.COLLECTOR_CONTROLLER,
+        AaveV3Optimism.SWAP_COLLATERAL_ADAPTER,
+        AaveV3Optimism.REPAY_WITH_COLLATERAL_ADAPTER
       );
   }
 }
@@ -49,7 +51,9 @@ library ArbitrumPayloadLib {
       new CollectorPermissionsMigrationPayload(
         AaveGovernanceV2.ARBITRUM_BRIDGE_EXECUTOR,
         AaveV3Arbitrum.COLLECTOR,
-        AaveV3Arbitrum.COLLECTOR_CONTROLLER
+        AaveV3Arbitrum.COLLECTOR_CONTROLLER,
+        AaveV3Arbitrum.SWAP_COLLATERAL_ADAPTER,
+        AaveV3Arbitrum.REPAY_WITH_COLLATERAL_ADAPTER
       );
   }
 }

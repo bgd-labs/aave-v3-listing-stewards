@@ -1,10 +1,16 @@
 ```diff
 diff --git a/./reports/Arbitrum_permissions-pre-migration.md b/./reports/Arbitrum_permissions-post-migration.md
-index 94edfc3..a06a824 100644
+index 94edfc3..c4bcf9e 100644
 --- a/./reports/Arbitrum_permissions-pre-migration.md
 +++ b/./reports/Arbitrum_permissions-post-migration.md
-@@ -9,8 +9,8 @@
-  | Owner swap collateral adapter | **Guardian** ( 0xbbd9f90699c1FA0D7A65870D241DD1f1217c96Eb ) | 
+@@ -5,12 +5,12 @@
+  | Owner of addresses provider | **Bridge Executor** ( 0x7d9103572bE58FfE99dc390E8246f02dcAe6f611 ) | 
+  | Owner of addresses provider registry | **Bridge Executor** ( 0x7d9103572bE58FfE99dc390E8246f02dcAe6f611 ) | 
+  | aclAdmin on addresses provider | **Bridge Executor** ( 0x7d9103572bE58FfE99dc390E8246f02dcAe6f611 ) | 
+- | Owner repay collateral adapter | **Guardian** ( 0xbbd9f90699c1FA0D7A65870D241DD1f1217c96Eb ) | 
+- | Owner swap collateral adapter | **Guardian** ( 0xbbd9f90699c1FA0D7A65870D241DD1f1217c96Eb ) | 
++ | Owner repay collateral adapter | **Bridge Executor** ( 0x7d9103572bE58FfE99dc390E8246f02dcAe6f611 ) | 
++ | Owner swap collateral adapter | **Bridge Executor** ( 0x7d9103572bE58FfE99dc390E8246f02dcAe6f611 ) | 
   | Owner of wrapped weth gateway | **Bridge Executor** ( 0x7d9103572bE58FfE99dc390E8246f02dcAe6f611 ) | 
   | Owner of Emission Manager | **Bridge Executor** ( 0x7d9103572bE58FfE99dc390E8246f02dcAe6f611 ) | 
 - | Owner of Controller of Collector | **Guardian** ( 0xbbd9f90699c1FA0D7A65870D241DD1f1217c96Eb ) | 
