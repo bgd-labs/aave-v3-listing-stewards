@@ -6,7 +6,7 @@ import {AaveGovernanceV2} from 'aave-address-book/AaveGovernanceV2.sol';
 import {AaveV3Optimism} from 'aave-address-book/AaveV3Optimism.sol';
 import {AaveV3Arbitrum} from 'aave-address-book/AaveV3Arbitrum.sol';
 import {PermissionsMigrationPayload} from '../src/contracts/misc-guardian/PermissionsMigrationPayload.sol';
-import {CollectorPermissionsMigrationPayload} from '../contracts/mic-guardian/CollectorPermissionsMigrationPayload.sol';
+import {CollectorPermissionsMigrationPayload} from '../src/contracts/misc-guardian/CollectorPermissionsMigrationPayload.sol';
 
 library OptimismPayloadLib {
   function _deploy() internal returns (PermissionsMigrationPayload) {
