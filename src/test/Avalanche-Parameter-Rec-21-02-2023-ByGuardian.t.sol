@@ -15,10 +15,7 @@ contract AaveV3AvaParamsByGuardian is Test {
         0xa35b76E4935449E33C56aB24b23fcd3246f13470;
 
     string public constant LinkSymbol = 'LINK.e';
-    string public constant WETHSymbol = 'WETH.e';
-    string public constant AAVESymbol = 'AAVE.e';
     string public constant WAVAXSymbol = 'WAVAX';
-    string public constant WBTCSymbol = 'WBTC.e';
 
     uint256 public constant LINKe_LIQ_THRESHOLD	 = 6800;
     uint256 public constant LINKe_LTV = 5300; 
@@ -29,7 +26,7 @@ contract AaveV3AvaParamsByGuardian is Test {
     uint256 public constant WAVAX_LIQ_BONUS = 11000; 
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl('avalanche'), 26507116); // not sure -- tool latest block
+        vm.createSelectFork(vm.rpcUrl('avalanche'), 26507116); 
     }
 
     function testNewParams() public {
@@ -77,6 +74,6 @@ contract AaveV3AvaParamsByGuardian is Test {
 
         AaveV3Helpers._validateReserveConfig(WAVAXConfig, allConfigsAfter);
 
-        require(paramsSteward.owner() == address(0), 'INVALID_OWNER'); // ??
+        require(paramsSteward.owner() == address(0), 'INVALID_OWNER');
     }
 }
