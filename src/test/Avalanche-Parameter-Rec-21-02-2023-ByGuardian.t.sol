@@ -12,7 +12,7 @@ contract AaveV3AvaParamsByGuardian is Test {
     using stdStorage for StdStorage;
 
     address public constant GUARDIAN_AVALANCHE =
-        0xa35b76E4935449E33C56aB24b23fcd3246f13470;
+        AaveV3Avalanche.ACL_ADMIN;
 
     string public constant LinkSymbol = 'LINK.e';
     string public constant WAVAXSymbol = 'WAVAX';
