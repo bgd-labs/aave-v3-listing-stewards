@@ -1,11 +1,11 @@
 [submodule "lib/forge-std"]
 	path = lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
-[submodule "lib/aave-address-book"]
+[submodule "bgd-labs/aave-address-book"]
 	path = lib/aave-address-book
-	url = https://github.com/lib/aave-address-book
+	url = https://github.com/bgd-labs/aave-address-book
 	branch = v1.10.0
-[submodule "lib/aave-helpers"]
+[submodule "bgd-labs/aave-helpers"]
 	path = lib/aave-helpers
-	url = https://github.com/lib/aave-helpers
+	url = https://github.com/bgd-labs/aave-helpers
 	branch = v1.4.0

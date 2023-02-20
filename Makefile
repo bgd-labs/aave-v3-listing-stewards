@@ -18,6 +18,8 @@ test-harmony-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV
 test-fantom-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV3FantomByGuardian --rpc-url=${RPC_FANTOM} --fork-block-number 46881340
 test-btcb-ava:; forge test -vvv --match-contract BTCBAaveV3AvaListingByGuardian
 test-v3-ava-caps:; forge test -vvv --match-contract AaveV3AvaCapsByGuardian
+test-v3-ava-params:; forge test -vvv --match-contract AaveV3AvaParamsByGuardian
+
 test-permissions-migration :
 	forge test --match-contract PermissionsMigrationToCrosschain -vvv
 	make git-diff before=./reports/Optimism_permissions-pre-migration.md after=./reports/Optimism_permissions-post-migration.md out=diff-Optimism-permissions-migration
