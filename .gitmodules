@@ -4,8 +4,8 @@
 [submodule "lib/aave-address-book"]
 	path = lib/aave-address-book
 	url = https://github.com/bgd-labs/aave-address-book
-	branch = v1.11.0
+	branch = v1.17.0
 [submodule "lib/aave-helpers"]
 	path = lib/aave-helpers
 	url = https://github.com/bgd-labs/aave-helpers
-	branch = v1.4.0
+	branch = v2.2.0
