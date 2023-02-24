@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.16;
 
 import 'forge-std/Test.sol';
 
@@ -24,6 +24,9 @@ contract AaveV3AvaParamsByGuardian is Test {
     uint256 public constant WAVAX_LIQ_THRESHOLD = 7300; 
     uint256 public constant WAVAX_LTV = 6800; 
     uint256 public constant WAVAX_LIQ_BONUS = 11000; 
+
+    string public constant SAVAXSymbol = 'sAVAX';
+    uint256 public constant SAVAX_CAP = 2_000_000;
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl('avalanche'), 26507116); 
@@ -58,7 +61,6 @@ contract AaveV3AvaParamsByGuardian is Test {
 
         LinkConfig.ltv = LINKe_LTV;
         LinkConfig.liquidationThreshold = LINKe_LIQ_THRESHOLD;        
-        LinkConfig.liquidationBonus = LINKe_LIQ_BONUS;
 
         AaveV3Helpers._validateReserveConfig(LinkConfig, allConfigsAfter);
 
@@ -70,9 +72,20 @@ contract AaveV3AvaParamsByGuardian is Test {
         );
         WAVAXConfig.ltv = WAVAX_LTV;
         WAVAXConfig.liquidationThreshold = WAVAX_LIQ_THRESHOLD;        
-        WAVAXConfig.liquidationBonus = WAVAX_LIQ_BONUS;
 
         AaveV3Helpers._validateReserveConfig(WAVAXConfig, allConfigsAfter);
+
+
+        //sAVAX
+        ReserveConfig memory SAVAXConfig = AaveV3Helpers._findReserveConfig(
+            allConfigsBefore,
+            SAVAXSymbol,
+            false
+        );
+        SAVAXConfig.supplyCap = SAVAX_CAP;
+        AaveV3Helpers._validateReserveConfig(SAVAXConfig, allConfigsAfter);
+
+
 
         require(paramsSteward.owner() == address(0), 'INVALID_OWNER');
     }

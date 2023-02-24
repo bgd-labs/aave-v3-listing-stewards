@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.10;
+pragma solidity ^0.8.16;
 
 import '../common/StewardBase.sol';
 import {AaveV3Avalanche, AaveV3AvalancheAssets} from 'aave-address-book/AaveV3Avalanche.sol';
@@ -23,6 +23,11 @@ contract AaveV3AvaParamsSteward is StewardBase {
     uint256 public constant WAVAX_LTV = 6800; // 68%
     uint256 public constant WAVAX_LIQ_BONUS = 11000; // 10%
 
+
+    address public constant SAVAX = AaveV3AvalancheAssets.sAVAX_UNDERLYING;
+
+    uint256 public constant SAVAX_CAP = 2_000_000;
+
     function execute()
         external
         withRennounceOfAllAavePermissions(AaveV3Avalanche.ACL_MANAGER)
@@ -43,6 +48,10 @@ contract AaveV3AvaParamsSteward is StewardBase {
             WAVAX_LIQ_THRESHOLD,
             WAVAX_LIQ_BONUS
         );
+
+
+        AaveV3Avalanche.POOL_CONFIGURATOR.setSupplyCap(SAVAX, SAVAX_CAP);
+
 
     }
 }
