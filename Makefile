@@ -19,6 +19,7 @@ test-fantom-freezing :; forge test -vvv --match-contract FreezeAllReservesAaveV3
 test-btcb-ava:; forge test -vvv --match-contract BTCBAaveV3AvaListingByGuardian
 test-v3-ava-caps:; forge test -vvv --match-contract AaveV3AvaCapsByGuardian
 test-v3-ava-params:; forge test -vvv --match-contract AaveV3AvaParamsByGuardian
+test-v3-ava-change-caps:; forge test -vvv --match-contract AaveV3AvaChangeCapsByGuardian
 
 test-permissions-migration :
 	forge test --match-contract PermissionsMigrationToCrosschain -vvv
