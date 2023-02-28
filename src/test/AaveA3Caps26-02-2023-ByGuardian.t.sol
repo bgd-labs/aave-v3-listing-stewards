@@ -37,8 +37,21 @@ contract AaveV3AvaChangeCapsByGuardian is Test {
     string public constant AAVEeSymbol = 'AAVE.e';
     uint256 public constant AAVEe_SUPPLY_CAP = 5_800;
 
-    string public constant LinkSymbol = 'LINK.e';
+    string public constant LINKSymbol = 'LINK.e';
     uint256 public constant LINKe_SUPPLY_CAP = 440_000;
+
+    string public constant BTCBSymbol = 'BTC.b';
+    uint256 public constant BTCB_SUPPLY_CAP = 3_500;
+    uint256 public constant BTCB_BORROW_CAP = 1_900;
+    
+    string public constant WBTCSymbol = 'WBTC.e';
+    uint256 public constant WBTC_SUPPLY_CAP = 1_400;
+    uint256 public constant WBTC_BORROW_CAP = 770;
+
+    string public constant WETHSymbol = 'WETH.e';
+    uint256 public constant WETH_SUPPLY_CAP = 37_500;
+    uint256 public constant WETH_BORROW_CAP = 20_500;
+
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl('avalanche'), 26507116); 
@@ -126,7 +139,7 @@ contract AaveV3AvaChangeCapsByGuardian is Test {
         //LINK
         ReserveConfig memory LINKConfig = AaveV3Helpers._findReserveConfig(
             allConfigsBefore,
-            LinkSymbol,
+            LINKSymbol,
             false
         );
         LINKConfig.supplyCap = LINKe_SUPPLY_CAP;

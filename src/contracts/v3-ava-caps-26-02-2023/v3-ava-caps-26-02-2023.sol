@@ -16,9 +16,11 @@ contract AaveV3AvaCapsSteward is StewardBase {
     address public constant MAI = AaveV3AvalancheAssets.MAI_UNDERLYING;
     address public constant USDC = AaveV3AvalancheAssets.USDC_UNDERLYING;
     address public constant USDT = AaveV3AvalancheAssets.USDt_UNDERLYING;
-
     address public constant AAVEe = AaveV3AvalancheAssets.AAVEe_UNDERLYING;
     address public constant LINKe = AaveV3AvalancheAssets.LINKe_UNDERLYING;
+    address public constant BTCB = AaveV3AvalancheAssets.BTCb_UNDERLYING;
+    address public constant WBTC = AaveV3AvalancheAssets.WBTCe_UNDERLYING;
+    address public constant WETH = AaveV3AvalancheAssets.WETHe_UNDERLYING;
 
     uint256 public constant DAI_SUPPLY_CAP = 30_000_000;
     uint256 public constant DAI_BORROW_CAP = 20_000_000;
@@ -35,10 +37,18 @@ contract AaveV3AvaCapsSteward is StewardBase {
     uint256 public constant USDT_SUPPLY_CAP = 200_000_000;
     uint256 public constant USDT_BORROW_CAP = 140_000_000;
 
-
     uint256 public constant AAVEe_SUPPLY_CAP = 5_800;
+
     uint256 public constant LINKe_SUPPLY_CAP = 440_000;
 
+    uint256 public constant BTCB_SUPPLY_CAP = 3_500;
+    uint256 public constant BTCB_BORROW_CAP = 1_900;
+
+    uint256 public constant WBTC_SUPPLY_CAP = 1_400;
+    uint256 public constant WBTC_BORROW_CAP = 770;
+
+    uint256 public constant WETH_SUPPLY_CAP = 37_500;
+    uint256 public constant WETH_BORROW_CAP = 20_500;
 
     function execute()
         external
@@ -66,5 +76,13 @@ contract AaveV3AvaCapsSteward is StewardBase {
 
         AaveV3Avalanche.POOL_CONFIGURATOR.setSupplyCap(LINKe, LINKe_SUPPLY_CAP);
 
+        AaveV3Avalanche.POOL_CONFIGURATOR.setSupplyCap(BTCB, BTCB_SUPPLY_CAP);
+        AaveV3Avalanche.POOL_CONFIGURATOR.setBorrowCap(BTCB, BTCB_BORROW_CAP);
+
+        AaveV3Avalanche.POOL_CONFIGURATOR.setSupplyCap(WBTC, WBTC_SUPPLY_CAP);
+        AaveV3Avalanche.POOL_CONFIGURATOR.setBorrowCap(WBTC, WBTC_BORROW_CAP);
+
+        AaveV3Avalanche.POOL_CONFIGURATOR.setSupplyCap(WETH, WETH_SUPPLY_CAP);
+        AaveV3Avalanche.POOL_CONFIGURATOR.setBorrowCap(WETH, WETH_BORROW_CAP);
     }
 }
