@@ -30,7 +30,7 @@ contract AaveV3AvaChangeCapsByGuardian is Test {
     uint256 public constant USDC_SUPPLY_CAP = 250_000_000;
     uint256 public constant USDC_BORROW_CAP = 175_000_000;
 
-    string public constant USDTSymbol = 'USDT';
+    string public constant USDTSymbol = 'USDt';
     uint256 public constant USDT_SUPPLY_CAP = 200_000_000;
     uint256 public constant USDT_BORROW_CAP = 140_000_000;
 
