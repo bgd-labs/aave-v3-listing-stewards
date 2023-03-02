@@ -52,12 +52,16 @@ contract AaveV3AvaChangeCapsByGuardian is Test {
     uint256 public constant WETH_SUPPLY_CAP = 37_500;
     uint256 public constant WETH_BORROW_CAP = 20_500;
 
+    string public constant WAVAXSymbol = 'WAVAX';
+    uint256 public constant WAVAX_SUPPLY_CAP = 3_800_000;
+    uint256 public constant WAVAX_BORROW_CAP = 1_200_000;
+
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl('avalanche'), 26507116); 
     }
 
-    function testNewParams() public {
+    function testNewCaps() public {
         ReserveConfig[] memory allConfigsBefore = AaveV3Helpers
             ._getReservesConfigs(false);
 
@@ -144,6 +148,48 @@ contract AaveV3AvaChangeCapsByGuardian is Test {
         );
         LINKConfig.supplyCap = LINKe_SUPPLY_CAP;
         AaveV3Helpers._validateReserveConfig(LINKConfig, allConfigsAfter);
+
+
+
+        //BTCB
+        ReserveConfig memory BTCBConfig = AaveV3Helpers._findReserveConfig(
+            allConfigsBefore,
+            BTCBSymbol,
+            false
+        );
+        BTCBConfig.supplyCap = BTCB_SUPPLY_CAP;
+        BTCBConfig.borrowCap = BTCB_BORROW_CAP;
+        AaveV3Helpers._validateReserveConfig(BTCBConfig, allConfigsAfter);
+
+        //WBTC
+        ReserveConfig memory WBTCConfig = AaveV3Helpers._findReserveConfig(
+            allConfigsBefore,
+            WBTCSymbol,
+            false
+        );
+        WBTCConfig.supplyCap = WBTC_SUPPLY_CAP;
+        WBTCConfig.borrowCap = WBTC_BORROW_CAP;
+        AaveV3Helpers._validateReserveConfig(WBTCConfig, allConfigsAfter);
+
+        //WETH
+        ReserveConfig memory WETHConfig = AaveV3Helpers._findReserveConfig(
+            allConfigsBefore,
+            WETHSymbol,
+            false
+        );
+        WETHConfig.supplyCap = WETH_SUPPLY_CAP;
+        WETHConfig.borrowCap = WETH_BORROW_CAP;
+        AaveV3Helpers._validateReserveConfig(WETHConfig, allConfigsAfter);
+
+        //WAVAX
+        ReserveConfig memory WAVAXConfig = AaveV3Helpers._findReserveConfig(
+            allConfigsBefore,
+            WAVAXSymbol,
+            false
+        );
+        WAVAXConfig.supplyCap = WAVAX_SUPPLY_CAP;
+        WAVAXConfig.borrowCap = WAVAX_BORROW_CAP;
+        AaveV3Helpers._validateReserveConfig(WAVAXConfig, allConfigsAfter);
 
 
         require(paramsSteward.owner() == address(0), 'INVALID_OWNER');

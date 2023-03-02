@@ -5,8 +5,7 @@ import '../common/StewardBase.sol';
 import {AaveV3Avalanche, AaveV3AvalancheAssets} from 'aave-address-book/AaveV3Avalanche.sol';
 
 /**
- * @dev This steward sets configure reserve as collateral for Link.e and wAVAX on AAVE V3 Avalanche
- * - Snapshot: todo 
+ * @dev This steward sets caps for multi-assets on avalanche
  * - Dicussion: https://governance.aave.com/t/arc-chaos-labs-supply-and-borrow-cap-updates-aave-v3-2023-02-24/12048
  */
 contract AaveV3AvaCapsSteward is StewardBase {
@@ -21,6 +20,7 @@ contract AaveV3AvaCapsSteward is StewardBase {
     address public constant BTCB = AaveV3AvalancheAssets.BTCb_UNDERLYING;
     address public constant WBTC = AaveV3AvalancheAssets.WBTCe_UNDERLYING;
     address public constant WETH = AaveV3AvalancheAssets.WETHe_UNDERLYING;
+    address public constant WAVAX = AaveV3AvalancheAssets.WAVAX_UNDERLYING;
 
     uint256 public constant DAI_SUPPLY_CAP = 30_000_000;
     uint256 public constant DAI_BORROW_CAP = 20_000_000;
@@ -49,6 +49,9 @@ contract AaveV3AvaCapsSteward is StewardBase {
 
     uint256 public constant WETH_SUPPLY_CAP = 37_500;
     uint256 public constant WETH_BORROW_CAP = 20_500;
+
+    uint256 public constant WAVAX_SUPPLY_CAP = 3_800_000;
+    uint256 public constant WAVAX_BORROW_CAP = 1_200_000;
 
     function execute()
         external
@@ -84,5 +87,8 @@ contract AaveV3AvaCapsSteward is StewardBase {
 
         AaveV3Avalanche.POOL_CONFIGURATOR.setSupplyCap(WETH, WETH_SUPPLY_CAP);
         AaveV3Avalanche.POOL_CONFIGURATOR.setBorrowCap(WETH, WETH_BORROW_CAP);
+
+        AaveV3Avalanche.POOL_CONFIGURATOR.setSupplyCap(WAVAX, WAVAX_SUPPLY_CAP);
+        AaveV3Avalanche.POOL_CONFIGURATOR.setBorrowCap(WAVAX, WAVAX_BORROW_CAP);
     }
 }
