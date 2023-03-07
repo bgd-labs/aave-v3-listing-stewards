@@ -22,7 +22,7 @@ contract AaveV3AvaCapsSteward is StewardBase {
     address public constant WETH = AaveV3AvalancheAssets.WETHe_UNDERLYING;
     address public constant WAVAX = AaveV3AvalancheAssets.WAVAX_UNDERLYING;
 
-        string public constant DAISymbol = 'DAI.e';
+    string public constant DAISymbol = 'DAI.e';
     uint256 public constant DAI_SUPPLY_CAP = 30_000_000;
     uint256 public constant DAI_BORROW_CAP = 20_000_000;
 
