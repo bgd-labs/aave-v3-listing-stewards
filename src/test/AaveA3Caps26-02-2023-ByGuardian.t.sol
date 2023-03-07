@@ -45,11 +45,11 @@ contract AaveV3AvaChangeCapsByGuardian is Test {
     uint256 public constant BTCB_BORROW_CAP = 1_900;
     
     string public constant WBTCSymbol = 'WBTC.e';
-    uint256 public constant WBTC_SUPPLY_CAP = 1_400;
-    uint256 public constant WBTC_BORROW_CAP = 770;
+    uint256 public constant WBTC_SUPPLY_CAP = 2_000;
+    uint256 public constant WBTC_BORROW_CAP = 1_100;
 
     string public constant WETHSymbol = 'WETH.e';
-    uint256 public constant WETH_SUPPLY_CAP = 37_500;
+    uint256 public constant WETH_SUPPLY_CAP = 38_000;
     uint256 public constant WETH_BORROW_CAP = 20_500;
 
     string public constant WAVAXSymbol = 'WAVAX';
